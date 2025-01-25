@@ -16,6 +16,7 @@ public class PlayerController {
     public Player playerLogin(String id, String pwd){
         Player player;
         player = cs.playerLogin(id, pwd);
+
         return player;
     }
     public int updatePlayer(Player p){
