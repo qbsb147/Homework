@@ -2,15 +2,15 @@ package Chess.view;
 
 import Chess.controller.ChessController;
 
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class ChessBoard {
     private Scanner sc = new Scanner(System.in);
     private ChessController cc = new ChessController();
 
-    public void exposedBoard(){
+    public void display(){
         explain();
-
     }
 
     public void showBoard(String[][] position){
@@ -88,11 +88,38 @@ public class ChessBoard {
         String next3 = sc.nextLine();
     }
 
-    public boolean blackDisplay(boolean turn) {
-        System.out.println("============흑 기물의 차례입니다.============");
-        System.out.print("당신이 움직일 기물을 입력하세요(ex. w1L1w) : ");
-        String piece = sc.nextLine();
-        boolean Check = cc.check(piece,0);
-        return !turn;
+    public String command(String tmp, String[][] position) {
+        showBoard(position);
+        System.out.println("============" + (tmp.equals("b") ? "흑" : "백") + " 기물의 차례입니다.============");
+        System.out.print("당신이 움직일 기물을 입력하세요(" + (tmp.equals("b") ? "ex) b1L1d" : "ex) w1L1w") + " : ");
+        String input = sc.next();
+        sc.nextLine();
+        boolean check = cc.check(input,0,tmp);
+
+        while (!check) {
+            showBoard(position);
+            System.out.println("잘 못 입력하셨습니다.");
+            System.out.print("당신이 움직일 기물을 입력하세요(" + (tmp.equals("b") ? "ex) b1L1d" : "ex) w1L1w") + " : ");
+            input = sc.next();
+            sc.nextLine();
+            check = cc.check(input,0,tmp);
+        }
+
+        showBoard(position);
+        System.out.print("당신이 이동할 위치를 지정해주세요(ex. A1) : ");
+        input = sc.next().toUpperCase();
+        sc.nextLine();
+        check = cc.check(input,1,tmp);
+
+        while (!check) {
+            showBoard(position);
+            System.out.println("잘 못 입력하셨습니다.");
+            System.out.print("당신이 이동할 위치를 지정해주세요(ex. A1) : ");
+            input = sc.next();
+            sc.nextLine();
+            check = cc.check(input,1,tmp);
+        }
+
+        return tmp;
     }
 }
