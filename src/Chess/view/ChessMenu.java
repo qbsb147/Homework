@@ -3,12 +3,15 @@ package Chess.view;
 import Chess.controller.PlayerController;
 import Chess.model.vo.Player;
 
+import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ChessMenu {
     private Scanner sc = new Scanner(System.in);
-    private PlayerController cc = new PlayerController();
-    private ChessBoard cb = new ChessBoard();
+    private PlayerController playerController = new PlayerController();
+    private ChessBoard chessBoard;
     private Player player = new Player();
 
     public void mainMenu() {
@@ -17,7 +20,7 @@ public class ChessMenu {
             System.out.println("******* 메인 메뉴 *******");
             System.out.println("1. Player 로그인");
             System.out.println("2. Player 등록");
-            System.out.println("3. 혼자 게임하기");
+            System.out.println("3. 오프라인 게임하기");
             System.out.println("4. Player 기록");
             System.out.println("9. 종료");
             System.out.print("메뉴 번호 입력 : ");
@@ -45,7 +48,7 @@ public class ChessMenu {
         while (true) {
             System.out.println("========== 체스 게임 시작하기 ==========");
             System.out.println("******* 메인 메뉴 *******");
-            System.out.println("1. 혼자 게임하기");
+            System.out.println("1. 오프라인 게임하기");
             System.out.println("2. 온라인 대결");
             System.out.println("3. Player 기록");
             System.out.println("4. 회원 정보 수정");
@@ -84,7 +87,7 @@ public class ChessMenu {
         System.out.print("비밀번호를 입력하세요 : ");
         String pwd = sc.nextLine();
 
-        player = cc.playerLogin(id, pwd);
+        player = playerController.playerLogin(id, pwd);
         if(player!=null) playerLoginMenu();
         else System.out.println("로그인에 실패했습니다.");
     }
@@ -125,7 +128,7 @@ public class ChessMenu {
             System.out.println("회원가입이 취소되었습니다.");
             return;
         }
-        int result = cc.playerJoin(id, pwd, name, age, gender, email, phone);
+        int result = playerController.playerJoin(id, pwd, name, age, gender, email, phone);
 
         if (result > 0) {
             System.out.println("회원 추가 성공");
@@ -145,7 +148,7 @@ public class ChessMenu {
         }
         updateMenu(player);
 
-        cc.updatePlayer(player);
+        playerController.updatePlayer(player);
     }
     public void updateMenu(Player player){
         while (true) {
@@ -227,7 +230,7 @@ public class ChessMenu {
             System.out.println("비밀번호가 틀립니다.");
             return;
         }
-        cc.deletePlayer(player);
+        playerController.deletePlayer(player);
         System.out.println("회원 탈퇴를 완료했습니다.");
     }
     public void myInfo(){
@@ -246,7 +249,10 @@ public class ChessMenu {
     }
 
     public void soloPlay(){
-        cb.display();
+        chessBoard = new ChessBoard();
+        SwingUtilities.invokeLater(() -> {
+            chessBoard.display();
+        });
     }
     public void multiPlay(){
 

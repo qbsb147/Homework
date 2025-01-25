@@ -1,38 +1,32 @@
-package Chess.service;
-
-import Chess.service.piece.Pawn;
-import Chess.service.piece.Rook;
+package Chess.view;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class ChessService extends JFrame  {
+public class ChessBoardWithImages extends JFrame {
     private static final int BOARD_SIZE = 8;
+    private static final String[][] position = {
+            {"wRw", "wNw", "wBw", "wQw", "wKw", "wBw", "wNw", "wRw"},
+            {"wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw"},
+            {null, null, null, null, null, null, null, null},
+            {null, null, null, null, null, null, null, null},
+            {null, null, null, null, null, null, null, null},
+            {null, null, null, null, null, null, null, null},
+            {"bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd"},
+            {"bRd", "bNd", "bBd", "bQd", "bKd", "bBd", "bNd", "bRd"}
+    };
+
     private final Map<String, ImageIcon> pieceImages = new HashMap<>();
-    private String[][] position;
-    private String pos;
 
-    public ChessService(){
-
-        this.position = new String[][]{
-                {"wRw", "wNw", "wBw", "wQw", "wKw", "wBw", "wNw", "wRw"},
-                {"wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw"},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {"bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd"},
-                {"bRd", "bNd", "bBd", "bQd", "bKd", "bBd", "bNd", "bRd"}};
-
+    public ChessBoardWithImages() {
         setTitle("Chess Board with Images");
         setSize(600, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        loadPieceImages();// 체스 기물 이미지 로드
+        loadPieceImages(); // 체스 기물 이미지 로드
 
         JPanel boardPanel = new JPanel(new GridLayout(BOARD_SIZE + 1, BOARD_SIZE + 1));
 
@@ -77,6 +71,7 @@ public class ChessService extends JFrame  {
         add(boardPanel, BorderLayout.CENTER);
         setVisible(true);
     }
+
     private void loadPieceImages() {
         String[] pieces = {"wPw", "wRw", "wNw", "wKw", "wQw", "wBw", "bPd", "bNd", "bBd", "bQd", "bKd", "bRd"};
         for (String piece : pieces) {
@@ -84,33 +79,7 @@ public class ChessService extends JFrame  {
         }
     }
 
-    public boolean inputCheck(String input, String tmp){
-        if((input.startsWith(tmp)
-                &&input.charAt(0)>='1'
-                &&input.charAt(0)<='8'
-                &&input.charAt(1)>='A'
-                &&input.charAt(1)<='H')){
-            this.pos = input;
-            return true;
-        }
-        return false;
-    }
-
-    public String[][] setPieces(HashMap<String, int[]> position){
-        String[][] board = new String[8][8];
-        HashMap<String, int[]> allPiece = position;
-        for(Map.Entry<String, int[]> entry : allPiece.entrySet()){
-            board[entry.getValue()[0]][entry.getValue()[1]] = entry.getKey();
-        }
-        return board;
-    }
-
-    public void movePosition(String piece,String move){
-        String item = position[piece.charAt(0) - '1'][7 - (piece.charAt(1) - 'A')];
-        switch (item.charAt(1)){
-            case 'R' :
-                new Rook().move(piece, move, position);
-                break;
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(ChessBoardWithImages::new);
     }
 }
