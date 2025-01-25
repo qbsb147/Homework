@@ -10,14 +10,14 @@ public class ChessService {
 
     public ChessService() {
         this.position = new HashMap<>();
-        this.position.put("w1L1w|", new int[]{0,0});
+        this.position.put("w1R1w|", new int[]{0,0});
         this.position.put("w1N1w|", new int[]{0,1});
         this.position.put("w1B1w|", new int[]{0,2});
         this.position.put("w<K>w|", new int[]{0,3});
         this.position.put("w<Q>w|", new int[]{0,4});
         this.position.put("w2B2w|", new int[]{0,5});
         this.position.put("w2N2w|", new int[]{0,6});
-        this.position.put("w2L2w|", new int[]{0,7});
+        this.position.put("w2R2w|", new int[]{0,7});
 
         this.position.put("w1P1w|", new int[]{1,0});
         this.position.put("w2P2w|", new int[]{1,1});
@@ -28,14 +28,14 @@ public class ChessService {
         this.position.put("w7P7w|", new int[]{1,6});
         this.position.put("w8P8w|", new int[]{1,7});
 
-        this.position.put("b1L1d|", new int[]{7,0});
+        this.position.put("b1R1d|", new int[]{7,0});
         this.position.put("b1N1d|", new int[]{7,1});
         this.position.put("b1B1d|", new int[]{7,2});
         this.position.put("b<K>d|", new int[]{7,3});
         this.position.put("b<Q>d|", new int[]{7,4});
         this.position.put("b2B2d|", new int[]{7,5});
         this.position.put("b2N2d|", new int[]{7,6});
-        this.position.put("b2L2d|", new int[]{7,7});
+        this.position.put("b2R2d|", new int[]{7,7});
 
         this.position.put("b1P1d|", new int[]{6,0});
         this.position.put("b2P2d|", new int[]{6,1});

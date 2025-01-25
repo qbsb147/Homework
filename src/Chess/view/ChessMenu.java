@@ -246,7 +246,7 @@ public class ChessMenu {
     }
 
     public void soloPlay(){
-        cb.exposedBoard();
+        cb.display();
     }
     public void multiPlay(){
 

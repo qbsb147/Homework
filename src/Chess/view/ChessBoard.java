@@ -64,7 +64,7 @@ public class ChessBoard {
         System.out.println();
         System.out.println("'1L1'와 같이 숫자가 적혀있는 것은 각 기물들을 구분하기 위한 것이며");
         System.out.println();
-        System.out.println("'P = 폰', 'L = 룩', 'N = 나이트', 'B = 비숍', 'K = 킹', 'Q = 퀸'을 뜻합니다.");
+        System.out.println("'P = 폰', 'R = 룩', 'N = 나이트', 'B = 비숍', 'K = 킹', 'Q = 퀸'을 뜻합니다.");
         System.out.println();
         System.out.print("설명을 이어서 들을려면 아무거나 입력 : ");
         String next1 = sc.nextLine();
@@ -72,7 +72,7 @@ public class ChessBoard {
         System.out.println();
         System.out.println("============체스 게임에 온것을 환영합니다============");
         System.out.println();
-        System.out.println("먼저 움직일 기물을 입력한 다음 (ex. w1L1w)");
+        System.out.println("먼저 움직일 기물을 입력한 다음 (ex. w1R1w)");
         System.out.println();
         System.out.println("내가 이동할 위치를 입력해주세요 (ex. A3)");
         System.out.println();
@@ -91,7 +91,7 @@ public class ChessBoard {
     public String command(String tmp, String[][] position) {
         showBoard(position);
         System.out.println("============" + (tmp.equals("b") ? "흑" : "백") + " 기물의 차례입니다.============");
-        System.out.print("당신이 움직일 기물을 입력하세요(" + (tmp.equals("b") ? "ex) b1L1d" : "ex) w1L1w") + " : ");
+        System.out.print("당신이 움직일 기물을 입력하세요(" + (tmp.equals("b") ? "ex) b1R1d" : "ex) w1R1w") + " : ");
         String input = sc.next();
         sc.nextLine();
         boolean check = cc.check(input,0,tmp);
@@ -99,7 +99,7 @@ public class ChessBoard {
         while (!check) {
             showBoard(position);
             System.out.println("잘 못 입력하셨습니다.");
-            System.out.print("당신이 움직일 기물을 입력하세요(" + (tmp.equals("b") ? "ex) b1L1d" : "ex) w1L1w") + " : ");
+            System.out.print("당신이 움직일 기물을 입력하세요(" + (tmp.equals("b") ? "ex) b1R1d" : "ex) w1R1w") + " : ");
             input = sc.next();
             sc.nextLine();
             check = cc.check(input,0,tmp);
