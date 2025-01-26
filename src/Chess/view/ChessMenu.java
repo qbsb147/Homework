@@ -250,9 +250,7 @@ public class ChessMenu {
 
     public void soloPlay(){
         chessBoard = new ChessBoard();
-        SwingUtilities.invokeLater(() -> {
-            chessBoard.display();
-        });
+        chessBoard.display();
     }
     public void multiPlay(){
 

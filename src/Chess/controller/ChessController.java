@@ -5,12 +5,15 @@ import Chess.service.ChessService;
 public class ChessController {
     private ChessService chessService = new ChessService();
 
-    public boolean inputCheck(String input, String tmp){
-        return chessService.inputCheck(input, tmp);
+    public boolean inputCheck(String input, String tmp, String method) {
+        return chessService.inputCheck(input, tmp, method);
     }
 
-    public void movePosition(String piece, String move){
-        chessService.movePosition(piece, move);
-    }
+    public String move(String piece, String move) {
+        String result = "";
+        boolean movable = chessService.movable(piece, move);
+        if (movable) result = chessService.move(piece, move);
 
+        return result;
+    }
 }

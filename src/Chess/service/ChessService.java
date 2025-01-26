@@ -1,31 +1,31 @@
 package Chess.service;
 
-import Chess.service.piece.Pawn;
 import Chess.service.piece.Rook;
+import Chess.service.piece.Pawn;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class ChessService extends JFrame  {
+public class ChessService extends JFrame {
     private static final int BOARD_SIZE = 8;
     private final Map<String, ImageIcon> pieceImages = new HashMap<>();
     private String[][] position;
     private String pos;
+    private JPanel boardPanel;
 
-    public ChessService(){
+    public ChessService() {
 
-        this.position = new String[][]{
-                {"wRw", "wNw", "wBw", "wQw", "wKw", "wBw", "wNw", "wRw"},
-                {"wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw"},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {"bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd"},
-                {"bRd", "bNd", "bBd", "bQd", "bKd", "bBd", "bNd", "bRd"}};
+        this.position = new String[][] {
+                { "wRw", "wNw", "wBw", "wQw", "wKw", "wBw", "wNw", "wRw" },
+                { "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw" },
+                { null, null, null, null, null, null, null, null },
+                { null, null, null, null, null, null, null, null },
+                { null, null, null, null, null, null, null, null },
+                { null, null, null, null, null, null, null, null },
+                { "bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd" },
+                { "bRd", "bNd", "bBd", "bQd", "bKd", "bBd", "bNd", "bRd" } };
 
         setTitle("Chess Board with Images");
         setSize(600, 600);
@@ -34,7 +34,7 @@ public class ChessService extends JFrame  {
 
         loadPieceImages();// 체스 기물 이미지 로드
 
-        JPanel boardPanel = new JPanel(new GridLayout(BOARD_SIZE + 1, BOARD_SIZE + 1));
+        boardPanel = new JPanel(new GridLayout(BOARD_SIZE + 1, BOARD_SIZE + 1));
 
         // 좌측 상단 빈 칸
         boardPanel.add(new JLabel(""));
@@ -77,40 +77,95 @@ public class ChessService extends JFrame  {
         add(boardPanel, BorderLayout.CENTER);
         setVisible(true);
     }
+
     private void loadPieceImages() {
-        String[] pieces = {"wPw", "wRw", "wNw", "wKw", "wQw", "wBw", "bPd", "bNd", "bBd", "bQd", "bKd", "bRd"};
+        String[] pieces = { "wPw", "wRw", "wNw", "wKw", "wQw", "wBw", "bPd", "bNd", "bBd", "bQd", "bKd", "bRd" };
         for (String piece : pieces) {
             pieceImages.put(piece, new ImageIcon("images/" + piece + ".png"));
         }
     }
 
-    public boolean inputCheck(String input, String tmp){
-        if((input.startsWith(tmp)
-                &&input.charAt(0)>='1'
-                &&input.charAt(0)<='8'
-                &&input.charAt(1)>='A'
-                &&input.charAt(1)<='H')){
+    public boolean inputCheck(String input, String tmp, String method) {
+        if ((input.charAt(0) >= '1'
+                && input.charAt(0) <= '8'
+                && input.charAt(1) >= 'A'
+                && input.charAt(1) <= 'H')) {
             this.pos = input;
-            return true;
+        } else
+            return false;
+        String item = position[7 - (input.charAt(0) - '1')][input.charAt(1) - 'A'];
+        if (method.equals("get")) {
+            if ((item != null && !item.startsWith(tmp)))
+                return false;
+        } else {
+            if ((item != null && item.startsWith(tmp)))
+                return false;
         }
-        return false;
+        return true;
     }
 
-    public String[][] setPieces(HashMap<String, int[]> position){
+    public String[][] setPieces(HashMap<String, int[]> position) {
         String[][] board = new String[8][8];
         HashMap<String, int[]> allPiece = position;
-        for(Map.Entry<String, int[]> entry : allPiece.entrySet()){
+        for (Map.Entry<String, int[]> entry : allPiece.entrySet()) {
             board[entry.getValue()[0]][entry.getValue()[1]] = entry.getKey();
         }
         return board;
     }
 
-    public void movePosition(String piece,String move){
-        String item = position[piece.charAt(0) - '1'][7 - (piece.charAt(1) - 'A')];
-        switch (item.charAt(1)){
-            case 'R' :
-                new Rook().move(piece, move, position);
+    public boolean movable(String piece, String move) {
+        String item = position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'];
+        boolean movable = false;
+        if (item == null)
+            return false;
+        switch (item.charAt(1)) {
+            case 'P':
+                movable = new Pawn().movable(piece, move, position);
+                break;
+            case 'R':
+                movable = new Rook().movable(piece, move, position);
                 break;
         }
+
+        return movable;
     }
+
+    public String move(String piece, String move) {
+        String prePosition = position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'];
+        String target = position[7 - (move.charAt(0) - '1')][move.charAt(1) - 'A'];
+        if (target == "wKw")
+            return "B";
+        else if (target == "bKd")
+            return "W";
+        else {
+            position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'] = null;
+            position[7 - (move.charAt(0) - '1')][move.charAt(1) - 'A'] = prePosition;
+
+            // GUI 업데이트를 위한 코드 추가
+            SwingUtilities.invokeLater(() -> {
+                updateBoard();
+            });
+        }
+        return "M";
+    }
+
+    private void updateBoard() {
+        // 체스판의 모든 칸을 업데이트
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                JPanel square = (JPanel) boardPanel.getComponent((row + 1) * (BOARD_SIZE + 1) + col + 1);
+                square.removeAll(); // 기존 기물 제거
+
+                String piece = position[row][col];
+                if (piece != null) {
+                    JLabel pieceLabel = new JLabel(pieceImages.get(piece));
+                    square.add(pieceLabel, BorderLayout.CENTER);
+                }
+
+                square.revalidate(); // 레이아웃 재검증
+                square.repaint(); // 다시 그리기
+            }
+        }
+    }
+
 }
