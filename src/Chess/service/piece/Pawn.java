@@ -11,7 +11,7 @@ public class Pawn extends Piece {
         //전진
         if(prePos.charAt(1)==nextPos.charAt(1)){
             if(start.startsWith("b")){        // 1칸 전진
-                if(prePos.charAt(0) - nextPos.charAt(0)==1){
+                if(nextPos.charAt(0) - prePos.charAt(0)==1){
                     if(destination==null) return true;
                 }        // 2칸 전진
                 if (prePos.startsWith("2") && nextPos.startsWith("4")) {
@@ -19,7 +19,7 @@ public class Pawn extends Piece {
                             && destination == null) return true;
                 }
             }else {        // 1칸 전진
-                if (nextPos.charAt(0) - prePos.charAt(0) == 1) {
+                if (prePos.charAt(0) - nextPos.charAt(0) == 1) {
                     if (destination == null) return true;
                 }        // 2칸 전진
                 if (prePos.startsWith("7") && nextPos.startsWith("5")) {

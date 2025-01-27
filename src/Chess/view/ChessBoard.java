@@ -35,15 +35,14 @@ public class ChessBoard {
             tmp = command(tmp);
             switch (tmp){
                 case "W":whiteWin();
-                break;
+                return;
                 case "B":blackWin();
-                break;
+                return;
             }
         }
     }
 
     public String command(String tmp) {
-
         System.out.println("============" + (tmp.equals("b") ? "흑" : "백") + " 기물의 차례입니다============");
         System.out.print("당신이 움직일 기물을 입력하세요. (ex. 1A) : ");
         String piece = sc.nextLine();
@@ -82,7 +81,7 @@ public class ChessBoard {
         String result = chessController.move(piece, move);
         if(result.equals("")){
             System.out.println("잘 못 입력하셨습니다. 다시 입력해주세요.");
-            command(tmp);
+            return command(tmp);
         }
         if (!result.equals("M"))return result;
 
@@ -90,10 +89,14 @@ public class ChessBoard {
     }
 
     public void whiteWin(){
-        System.out.println("============백팀의 승리입니다!============");
+        System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+        System.out.println("┃      🏆 백 팀의 승리! 🏆      ┃");
+        System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
     }
 
     public void blackWin(){
-        System.out.println("============흑팀의 승리입니다!============");
+        System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+        System.out.println("┃      🏆 흑 팀의 승리! 🏆      ┃");
+        System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
     }
 }

@@ -14,6 +14,17 @@ import java.util.Properties;
 import static Chess.common.JDBCTemplate.close;
 
 public class PlayerDao {
+    private PlayerDao() {
+    }
+    private static class PlayerDaoHolder{
+        private static final PlayerDao PLAYER_DAO = new PlayerDao();
+    }
+
+    public static PlayerDao getInstance(){
+        return PlayerDaoHolder.PLAYER_DAO;
+    }
+
+
     private Properties prop = new Properties();
 
     public int playerJoin(Player p, Connection conn){

@@ -1,10 +1,10 @@
 package Chess.service;
 
-import Chess.service.piece.Rook;
-import Chess.service.piece.Pawn;
+import Chess.service.piece.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,8 +12,8 @@ public class ChessService extends JFrame {
     private static final int BOARD_SIZE = 8;
     private final Map<String, ImageIcon> pieceImages = new HashMap<>();
     private String[][] position;
-    private String pos;
     private JPanel boardPanel;
+    private ArrayList<String> recordList;
 
     public ChessService() {
 
@@ -90,27 +90,16 @@ public class ChessService extends JFrame {
                 && input.charAt(0) <= '8'
                 && input.charAt(1) >= 'A'
                 && input.charAt(1) <= 'H')) {
-            this.pos = input;
-        } else
-            return false;
+        } else return false;
         String item = position[7 - (input.charAt(0) - '1')][input.charAt(1) - 'A'];
         if (method.equals("get")) {
-            if ((item != null && !item.startsWith(tmp)))
+            if (item==null||(item != null && !item.startsWith(tmp)))
                 return false;
         } else {
-            if ((item != null && item.startsWith(tmp)))
+            if (item != null && item.startsWith(tmp))
                 return false;
         }
         return true;
-    }
-
-    public String[][] setPieces(HashMap<String, int[]> position) {
-        String[][] board = new String[8][8];
-        HashMap<String, int[]> allPiece = position;
-        for (Map.Entry<String, int[]> entry : allPiece.entrySet()) {
-            board[entry.getValue()[0]][entry.getValue()[1]] = entry.getKey();
-        }
-        return board;
     }
 
     public boolean movable(String piece, String move) {
@@ -120,23 +109,54 @@ public class ChessService extends JFrame {
             return false;
         switch (item.charAt(1)) {
             case 'P':
-                movable = new Pawn().movable(piece, move, position);
+                Pawn pawn = new Pawn();
+                pawn.movable(piece, move, position);
+                recordList.add(pawn.record());
                 break;
             case 'R':
-                movable = new Rook().movable(piece, move, position);
+                Rook rook = new Rook();
+                rook.movable(piece, move, position);
+                recordList.add(rook.record());
+                break;
+            case 'K':
+                King king = new King();
+                king.movable(piece, move, position);
+                recordList.add(king.record());
+                break;
+            case 'Q':
+                Queen queen = new Queen();
+                queen.movable(piece, move, position);
+                recordList.add(queen.record());
+                break;
+            case 'N':
+                Knight knight = new Knight();
+                knight.movable(piece, move, position);
+                recordList.add(knight.record());
+                break;
+            case 'B':
+                Bishop bishop = new Bishop();
+                bishop.movable(piece, move, position);
+                recordList.add(bishop.record());
                 break;
         }
-
         return movable;
     }
 
     public String move(String piece, String move) {
         String prePosition = position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'];
         String target = position[7 - (move.charAt(0) - '1')][move.charAt(1) - 'A'];
-        if (target == "wKw")
+        if (target!=null&&target.equals("wKw")) {
+            JOptionPane.showMessageDialog(null, "게임 종료! 블랙팀 승리!", "체스 게임", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose(); // 현재 ChessService JFrame만 닫기
+
+
             return "B";
-        else if (target == "bKd")
+        }
+        else if (target!=null&&target.equals("bKd")){
+            JOptionPane.showMessageDialog(null, "게임 종료! 화이트팀 승리!", "체스 게임", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose(); // 현재 ChessService JFrame만 닫기
             return "W";
+        }
         else {
             position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'] = null;
             position[7 - (move.charAt(0) - '1')][move.charAt(1) - 'A'] = prePosition;
