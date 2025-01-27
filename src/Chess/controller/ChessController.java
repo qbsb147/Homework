@@ -13,8 +13,10 @@ public class ChessController {
     public String move(String piece, String move) {
         String result = "";
         boolean movable = chessService.movable(piece, move);
-        if (movable) result = chessService.move(piece, move);
-
+        if (movable) {
+            result = chessService.move(piece, move);
+            chessService.record();
+        }
         return result;
     }
 }

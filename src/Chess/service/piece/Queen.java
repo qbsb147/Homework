@@ -15,9 +15,4 @@ public class Queen extends Piece {
             return bishop.movable(prePos, nextPos, position);
         }
     }
-
-    @Override
-    public String record() {
-        return super.record();
-    }
 }

@@ -29,9 +29,4 @@ public class Bishop extends Piece {
             return true;
         }else return false;
     }
-
-    @Override
-    public String record() {
-        return super.record();
-    }
 }

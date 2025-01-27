@@ -12,9 +12,4 @@ public class Knight extends Piece {
                 &&Math.abs(nextPos.charAt(1) - prePos.charAt(1))==2))return true;
         return false;
     }
-
-    @Override
-    public String record() {
-        return super.record();
-    }
 }

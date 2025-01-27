@@ -1,31 +1,37 @@
 package Chess.service;
 
+import Chess.model.dao.ChessDao;
 import Chess.service.piece.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static Chess.common.JDBCTemplate.getConnection;
 
 public class ChessService extends JFrame {
     private static final int BOARD_SIZE = 8;
     private final Map<String, ImageIcon> pieceImages = new HashMap<>();
     private String[][] position;
     private JPanel boardPanel;
-    private ArrayList<String> recordList;
+    private Piece piece;
+    private ArrayList<String> record;
 
     public ChessService() {
 
         this.position = new String[][] {
-                { "wRw", "wNw", "wBw", "wQw", "wKw", "wBw", "wNw", "wRw" },
+                { "wRw", "wNw", "wBw", "wQw", "wKk", "wBw", "wNw", "wRw" },
                 { "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw" },
                 { null, null, null, null, null, null, null, null },
                 { null, null, null, null, null, null, null, null },
                 { null, null, null, null, null, null, null, null },
                 { null, null, null, null, null, null, null, null },
                 { "bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd", "bPd" },
-                { "bRd", "bNd", "bBd", "bQd", "bKd", "bBd", "bNd", "bRd" } };
+                { "bRd", "bNd", "bBd", "bQd", "bKk", "bBd", "bNd", "bRd" } };
 
         setTitle("Chess Board with Images");
         setSize(600, 600);
@@ -79,7 +85,7 @@ public class ChessService extends JFrame {
     }
 
     private void loadPieceImages() {
-        String[] pieces = { "wPw", "wRw", "wNw", "wKw", "wQw", "wBw", "bPd", "bNd", "bBd", "bQd", "bKd", "bRd" };
+        String[] pieces = { "wPw", "wRw", "wNw", "wKk", "wQw", "wBw", "bPd", "bNd", "bBd", "bQd", "bKk", "bRd" };
         for (String piece : pieces) {
             pieceImages.put(piece, new ImageIcon("images/" + piece + ".png"));
         }
@@ -109,34 +115,28 @@ public class ChessService extends JFrame {
             return false;
         switch (item.charAt(1)) {
             case 'P':
-                Pawn pawn = new Pawn();
-                pawn.movable(piece, move, position);
-                recordList.add(pawn.record());
+                this.piece = new Pawn();
+                this.piece.movable(piece, move, position);
                 break;
             case 'R':
-                Rook rook = new Rook();
-                rook.movable(piece, move, position);
-                recordList.add(rook.record());
+                this.piece = new Rook();
+                this.piece.movable(piece, move, position);
                 break;
             case 'K':
-                King king = new King();
-                king.movable(piece, move, position);
-                recordList.add(king.record());
+                this.piece = new King();
+                this.piece.movable(piece, move, position);
                 break;
             case 'Q':
-                Queen queen = new Queen();
-                queen.movable(piece, move, position);
-                recordList.add(queen.record());
+                this.piece = new Queen();
+                this.piece.movable(piece, move, position);
                 break;
             case 'N':
-                Knight knight = new Knight();
-                knight.movable(piece, move, position);
-                recordList.add(knight.record());
+                this.piece = new Knight();
+                this.piece.movable(piece, move, position);
                 break;
             case 'B':
-                Bishop bishop = new Bishop();
-                bishop.movable(piece, move, position);
-                recordList.add(bishop.record());
+                this.piece = new Bishop();
+                this.piece.movable(piece, move, position);
                 break;
         }
         return movable;
@@ -145,16 +145,16 @@ public class ChessService extends JFrame {
     public String move(String piece, String move) {
         String prePosition = position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'];
         String target = position[7 - (move.charAt(0) - '1')][move.charAt(1) - 'A'];
-        if (target!=null&&target.equals("wKw")) {
+        if (target!=null&&target.equals("wKk")) {
             JOptionPane.showMessageDialog(null, "게임 종료! 블랙팀 승리!", "체스 게임", JOptionPane.INFORMATION_MESSAGE);
             this.dispose(); // 현재 ChessService JFrame만 닫기
-
-
+            restore('b');
             return "B";
         }
-        else if (target!=null&&target.equals("bKd")){
+        else if (target!=null&&target.equals("bKk")){
             JOptionPane.showMessageDialog(null, "게임 종료! 화이트팀 승리!", "체스 게임", JOptionPane.INFORMATION_MESSAGE);
             this.dispose(); // 현재 ChessService JFrame만 닫기
+            restore('w');
             return "W";
         }
         else {
@@ -167,6 +167,17 @@ public class ChessService extends JFrame {
             });
         }
         return "M";
+    }
+
+    public void record(){
+        record.add(this.piece.toString());
+    }
+
+    public void restore(char victory){
+        String allRecord = String.join(",", record);
+        String finalPositino = Arrays.deepToString(position);
+        Connection conn = getConnection();
+        int result = ChessDao.getInstance().insertRecord(conn, victory, allRecord, finalPositino);
     }
 
     private void updateBoard() {
@@ -187,5 +198,4 @@ public class ChessService extends JFrame {
             }
         }
     }
-
 }

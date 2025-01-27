@@ -6,7 +6,8 @@ public abstract class Piece {
 
     abstract public boolean movable(String prePos, String nextPos, String[][] position);
 
-    public String record(){
+    @Override
+    public String toString() {
         return start + ":" + destination;
-    };
+    }
 }

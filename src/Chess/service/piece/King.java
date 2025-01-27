@@ -10,9 +10,4 @@ public class King extends Piece {
         if (Math.abs(nextPos.charAt(0)-prePos.charAt(0))<=1&&Math.abs(nextPos.charAt(1)-prePos.charAt(1))<=1) return true;
         return false;
     }
-
-    @Override
-    public String record() {
-        return super.record();
-    }
 }

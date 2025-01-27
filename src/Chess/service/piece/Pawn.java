@@ -42,9 +42,4 @@ public class Pawn extends Piece {
         }
         return false;
     }
-
-    @Override
-    public String record() {
-        return super.record();
-    }
 }
