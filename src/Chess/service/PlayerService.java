@@ -8,9 +8,21 @@ import java.sql.Connection;
 import static Chess.common.JDBCTemplate.*;
 
 public class PlayerService {
+
+    private PlayerService() {
+    }
+
+    private static class PlayerServiceHolder{
+        private static final PlayerService PLAYER_SERVICE = new PlayerService();
+    }
+
+    public static PlayerService getInstance(){
+        return PlayerServiceHolder.PLAYER_SERVICE;
+    }
+
     public int playerJoin(Player p) {
         Connection conn = getConnection();
-        int result = new PlayerDao().playerJoin(p, conn);
+        int result = PlayerDao.getInstance().playerJoin(p, conn);
         if (result > 0) {
             commit(conn);
         }else{
@@ -22,7 +34,7 @@ public class PlayerService {
 
     public Player playerLogin(String id, String pwd) {
         Connection conn = getConnection();
-        Player player = new PlayerDao().playerLogin(id, pwd, conn);
+        Player player = PlayerDao.getInstance().playerLogin(id, pwd, conn);
         if (player!=null) {
             commit(conn);
         }else{
@@ -34,7 +46,7 @@ public class PlayerService {
 
     public int deletePlayer(Player p){
         Connection conn = getConnection();
-        int result = new PlayerDao().deletePlayer(p, conn);
+        int result = PlayerDao.getInstance().deletePlayer(p, conn);
 
         if (result > 0) {
             commit(conn);
@@ -47,7 +59,7 @@ public class PlayerService {
 
     public int updatePlayer(Player p){
         Connection conn = getConnection();
-        int result = new PlayerDao().updatePlayer(p, conn);
+        int result = PlayerDao.getInstance().updatePlayer(p, conn);
 
         if (result > 0) {
             commit(conn);
