@@ -1,4 +1,4 @@
-package Chess.service.piece;
+package Chess.model.vo;
 
 public abstract class Piece {
     protected String start;

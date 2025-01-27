@@ -1,4 +1,6 @@
-package Chess.service.piece;
+package Chess.model.vo.piece;
+
+import Chess.model.vo.Piece;
 
 public class Rook extends Piece {
     @Override

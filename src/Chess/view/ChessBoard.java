@@ -85,7 +85,8 @@ public class ChessBoard {
         }
 
         if (!result.equals("M")){
-            chessController.updateRecord(player, result);
+            Long userNo = player!=null? player.getUserNo() : null;
+            chessController.updateRecord(userNo, result);
             return result;
         }
 

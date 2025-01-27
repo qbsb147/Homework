@@ -1,9 +1,8 @@
 package Chess.service;
 
 import Chess.model.dao.ChessDao;
-import Chess.model.dao.PlayerDao;
-import Chess.model.vo.Player;
-import Chess.service.piece.*;
+import Chess.model.vo.Piece;
+import Chess.model.vo.piece.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -174,11 +173,11 @@ public class ChessService extends JFrame {
         record.add(this.piece.toString());
     }
 
-    public int updateRecord(Player player, String victory){
+    public int updateRecord(Long userNo, String victory){
         String allRecord = String.join(",", record);
         String finalPosition = Arrays.deepToString(position);
         Connection conn = getConnection();
-        int result = ChessDao.getInstance().insertRecord( conn, player, victory, allRecord, finalPosition);
+        int result = ChessDao.getInstance().insertRecord(conn, userNo, victory, allRecord, finalPosition);
         if (result > 0) {
             commit(conn);
         }else{

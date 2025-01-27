@@ -22,8 +22,8 @@ public class ChessController {
         return result;
     }
 
-    public void updateRecord(Player player, String victory){
-        int result = chessService.updateRecord(player, victory);
+    public void updateRecord(Long userNo, String victory){
+        int result = chessService.updateRecord(userNo, victory);
         if (result > 0) {
             new ChessMenu().displaySucccess("최신 기록 업데이트");
         }else{

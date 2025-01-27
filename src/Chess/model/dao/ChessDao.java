@@ -26,7 +26,7 @@ public class ChessDao {
 
     private Properties prop = new Properties();
 
-    public int insertRecord(Connection conn, Player player, String victory, String allRecord, String finalPosition){
+    public int insertRecord(Connection conn, Long userNo, String victory, String allRecord, String finalPosition){
         int result = 0;
         PreparedStatement pstmt = null;
 
@@ -39,13 +39,10 @@ public class ChessDao {
         String sql = prop.getProperty("playerJoin");
         try {
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, p.getId());
-            pstmt.setString(2, p.getPwd());
-            pstmt.setString(3, p.getName());
-            pstmt.setString(4, p.getGender());
-            pstmt.setInt(5, p.getAge());
-            pstmt.setString(6, p.getEmail());
-            pstmt.setString(7, p.getPhone());
+            pstmt.setLong(1, userNo);
+            pstmt.setString(2, victory);
+            pstmt.setString(3, allRecord);
+            pstmt.setString(4, finalPosition);
 
             result = pstmt.executeUpdate();
         } catch (SQLException e) {
