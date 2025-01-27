@@ -1,6 +1,8 @@
 package Chess.controller;
 
+import Chess.model.vo.Player;
 import Chess.service.ChessService;
+import Chess.view.ChessMenu;
 
 public class ChessController {
 
@@ -18,5 +20,14 @@ public class ChessController {
             chessService.record();
         }
         return result;
+    }
+
+    public void updateRecord(Player player, String victory){
+        int result = chessService.updateRecord(player, victory);
+        if (result > 0) {
+            new ChessMenu().displaySucccess("최신 기록 업데이트");
+        }else{
+            new ChessMenu().displayFail("업데이트 실패");
+        }
     }
 }

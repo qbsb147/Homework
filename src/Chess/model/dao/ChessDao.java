@@ -26,7 +26,7 @@ public class ChessDao {
 
     private Properties prop = new Properties();
 
-    public int insertRecord(Connection conn, char victory, String allRecord, String finalPosition){
+    public int insertRecord(Connection conn, Player player, String victory, String allRecord, String finalPosition){
         int result = 0;
         PreparedStatement pstmt = null;
 

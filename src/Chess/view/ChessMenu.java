@@ -12,6 +12,7 @@ public class ChessMenu {
     private Scanner sc = new Scanner(System.in);
     private PlayerController playerController = PlayerController.getInstance();
     private Player player=null;
+    private ChessBoard chessBoard = new ChessBoard();
 
     public void mainMenu() {
         while (true) {
@@ -241,7 +242,7 @@ public class ChessMenu {
     }
 
     public void soloPlay(){
-        new ChessBoard().display();
+        chessBoard.display(player);
     }
     public void multiPlay(){
 

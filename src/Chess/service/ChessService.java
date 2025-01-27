@@ -1,6 +1,8 @@
 package Chess.service;
 
 import Chess.model.dao.ChessDao;
+import Chess.model.dao.PlayerDao;
+import Chess.model.vo.Player;
 import Chess.service.piece.*;
 
 import javax.swing.*;
@@ -11,7 +13,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static Chess.common.JDBCTemplate.getConnection;
+import static Chess.common.JDBCTemplate.*;
+import static Chess.common.JDBCTemplate.close;
 
 public class ChessService extends JFrame {
     private static final int BOARD_SIZE = 8;
@@ -148,13 +151,11 @@ public class ChessService extends JFrame {
         if (target!=null&&target.equals("wKk")) {
             JOptionPane.showMessageDialog(null, "게임 종료! 블랙팀 승리!", "체스 게임", JOptionPane.INFORMATION_MESSAGE);
             this.dispose(); // 현재 ChessService JFrame만 닫기
-            restore('b');
             return "B";
         }
         else if (target!=null&&target.equals("bKk")){
             JOptionPane.showMessageDialog(null, "게임 종료! 화이트팀 승리!", "체스 게임", JOptionPane.INFORMATION_MESSAGE);
             this.dispose(); // 현재 ChessService JFrame만 닫기
-            restore('w');
             return "W";
         }
         else {
@@ -173,11 +174,17 @@ public class ChessService extends JFrame {
         record.add(this.piece.toString());
     }
 
-    public void restore(char victory){
+    public int updateRecord(Player player, String victory){
         String allRecord = String.join(",", record);
-        String finalPositino = Arrays.deepToString(position);
+        String finalPosition = Arrays.deepToString(position);
         Connection conn = getConnection();
-        int result = ChessDao.getInstance().insertRecord(conn, victory, allRecord, finalPositino);
+        int result = ChessDao.getInstance().insertRecord( conn, player, victory, allRecord, finalPosition);
+        if (result > 0) {
+            commit(conn);
+        }else{
+            rollback(conn);
+        }
+        return result;
     }
 
     private void updateBoard() {

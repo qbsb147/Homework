@@ -1,20 +1,20 @@
 package Chess.view;
 
 import Chess.controller.ChessController;
+import Chess.model.vo.Player;
+import Chess.service.ChessService;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class ChessBoard {
     private Scanner sc = new Scanner(System.in);
+    private Player player = null;
     private ChessController chessController = new ChessController();
 
-    public void display(){
+    public void display(Player player){
         explain();
         progress();
+        this.player = player;
     }
 
     public void explain(){
@@ -83,7 +83,11 @@ public class ChessBoard {
             System.out.println("잘 못 입력하셨습니다. 다시 입력해주세요.");
             return command(tmp);
         }
-        if (!result.equals("M"))return result;
+
+        if (!result.equals("M")){
+            chessController.updateRecord(player, result);
+            return result;
+        }
 
         return tmp.equals("b") ? "w" : "b";
     }
