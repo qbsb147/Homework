@@ -8,25 +8,25 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import static Chess.common.JDBCTemplate.close;
 
-public class PlayerDao {
-    private PlayerDao() {
+public class ChessDao {
+    private ChessDao() {
     }
-    private static class PlayerDaoHolder{
-        private static final PlayerDao PLAYER_DAO = new PlayerDao();
+    private static class ChessDaoHolder{
+        private static final ChessDao CHESS_DAO = new ChessDao();
     }
 
-    public static PlayerDao getInstance(){
-        return PlayerDaoHolder.PLAYER_DAO;
+    public static ChessDao getInstance(){
+        return ChessDaoHolder.CHESS_DAO;
     }
+
 
     private Properties prop = new Properties();
 
-    public int playerJoin(Player p, Connection conn){
+    public int insertRecord(Connection conn, Player player, String victory, String allRecord, String finalPosition){
         int result = 0;
         PreparedStatement pstmt = null;
 

@@ -29,9 +29,4 @@ public class Rook extends Piece {
         }
         return true;
     }
-
-    @Override
-    public String record() {
-        return super.record();
-    }
 }

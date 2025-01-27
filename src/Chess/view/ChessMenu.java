@@ -11,8 +11,8 @@ import java.util.Scanner;
 public class ChessMenu {
     private Scanner sc = new Scanner(System.in);
     private PlayerController playerController = PlayerController.getInstance();
-    private ChessBoard chessBoard;
-    private Player player = new Player();
+    private Player player=null;
+    private ChessBoard chessBoard = new ChessBoard();
 
     public void mainMenu() {
         while (true) {
@@ -129,13 +129,7 @@ public class ChessMenu {
             System.out.println("회원가입이 취소되었습니다.");
             return;
         }
-        int result = playerController.playerJoin(id, pwd, name, age, gender, email, phone);
-
-        if (result > 0) {
-            System.out.println("회원 추가 성공");
-        }else{
-            System.out.println("회원 추가 실패");
-        }
+        playerController.playerJoin(id, pwd, name, age, gender, email, phone);
     }
     public void updatePlayer(){
         System.out.println("========== 회원 수정 ==========");
@@ -148,7 +142,6 @@ public class ChessMenu {
             return;
         }
         updateMenu(player);
-
         playerController.updatePlayer(player);
     }
     public void updateMenu(Player player){
@@ -232,7 +225,6 @@ public class ChessMenu {
             return;
         }
         playerController.deletePlayer(player);
-        System.out.println("회원 탈퇴를 완료했습니다.");
     }
     public void myInfo(){
         System.out.print("회원 아이디 : ");
@@ -250,7 +242,7 @@ public class ChessMenu {
     }
 
     public void soloPlay(){
-        new ChessBoard().display();
+        chessBoard.display(player);
     }
     public void multiPlay(){
 
@@ -265,4 +257,5 @@ public class ChessMenu {
     public void displayFail(String message){
         System.out.println("\n서비스 요청 실패 : "+message);
     }
+
 }
