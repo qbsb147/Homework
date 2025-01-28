@@ -4,6 +4,7 @@ import Chess.model.dao.PlayerDao;
 import Chess.model.vo.Player;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 
 import static Chess.common.JDBCTemplate.*;
 
@@ -69,5 +70,16 @@ public class PlayerService {
         close(conn);
         return result;
     }
+    public Player checkId(String id){
+        Connection conn = getConnection();
+        Player player = PlayerDao.getInstance().checkId(conn, id);
 
+        if (player!=null) {
+            commit(conn);
+        }else{
+            rollback(conn);
+        }
+        close(conn);
+        return player;
+    }
 }

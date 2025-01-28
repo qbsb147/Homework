@@ -1,9 +1,9 @@
 package Chess.run;
 
-import Chess.view.ChessMenu;
+import Chess.view.NonLoginChessMenu;
 
 public class Run {
     public static void main(String[] args) {
-        new ChessMenu().mainMenu();
+        new NonLoginChessMenu().mainMenu();
     }
 }

@@ -1,6 +1,5 @@
 package Chess.controller;
 
-import Chess.model.vo.Player;
 import Chess.service.ChessService;
 import Chess.view.ChessMenu;
 
@@ -17,7 +16,6 @@ public class ChessController {
         boolean movable = chessService.movable(piece, move);
         if (movable) {
             result = chessService.move(piece, move);
-            chessService.record();
         }
         return result;
     }

@@ -23,18 +23,18 @@ public class PlayerController {
         Player p = new Player(id, pwd, name, age, gender, email, phone);
         int result = playerService.playerJoin(p);
         if (result > 0) {
-            new ChessMenu().displaySucccess("회원 추가 성공");
+            new ChessMenu().displaySucccess("회원 가입 성공");
         }else{
-            new ChessMenu().displayFail("회원 추가 실패");
+            new ChessMenu().displayFail("회원 가입 실패");
         }
     }
     public Player playerLogin(String id, String pwd){
         Player player;
         player = playerService.playerLogin(id, pwd);
         if(player!=null){
-            new ChessMenu().displaySucccess("회원 가입 성공");
+            new ChessMenu().displaySucccess("로그인 성공");
         }else{
-            new ChessMenu().displayFail("회원 가입 실패");
+            new ChessMenu().displayFail("로그인 실패");
         }
         return player;
     }
@@ -53,5 +53,13 @@ public class PlayerController {
         }else{
             new ChessMenu().displayFail("회원 삭제 실패");
         }
+    }
+
+    public Player checkId(String id){
+        Player player = playerService.checkId(id);
+            if (player!= null) {
+                return player;
+            }
+        return null;
     }
 }

@@ -5,9 +5,4 @@ public abstract class Piece {
     protected String destination;
 
     abstract public boolean movable(String prePos, String nextPos, String[][] position);
-
-    @Override
-    public String toString() {
-        return start + ":" + destination;
-    }
 }

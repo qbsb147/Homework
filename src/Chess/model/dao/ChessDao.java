@@ -36,13 +36,17 @@ public class ChessDao {
             throw new RuntimeException(e);
         }
 
-        String sql = prop.getProperty("playerJoin");
+        String sql = prop.getProperty("insertRecord");
         try {
             pstmt = conn.prepareStatement(sql);
-            pstmt.setLong(1, userNo);
+            if(userNo!=null){
+                pstmt.setLong(1, userNo);
+            }else{
+                pstmt.setNull(1, java.sql.Types.BIGINT);
+            }
             pstmt.setString(2, victory);
-            pstmt.setString(3, allRecord);
-            pstmt.setString(4, finalPosition);
+            pstmt.setString(3, finalPosition);
+            pstmt.setString(4, allRecord);
 
             result = pstmt.executeUpdate();
         } catch (SQLException e) {

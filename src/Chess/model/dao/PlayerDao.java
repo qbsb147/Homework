@@ -152,5 +152,35 @@ public class PlayerDao {
         }
         return result;
     }
+    public Player checkId(Connection conn, String id){
+        ResultSet rset = null;
+        Player player = null;
+        PreparedStatement pstmt = null;
 
+        try {
+            prop.loadFromXML(new FileInputStream("resources/query.xml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String sql = prop.getProperty("checkId");
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, id);
+
+            rset = pstmt.executeQuery();
+
+            while (rset.next()){
+                player = new Player();
+                player.setId(rset.getString("ID"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            close(rset);
+            close(pstmt);
+        }
+        return player;
+    }
 }

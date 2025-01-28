@@ -12,9 +12,9 @@ public class ChessBoard {
     private ChessController chessController = new ChessController();
 
     public void display(Player player){
+        this.player = player;
         explain();
         progress();
-        this.player = player;
     }
 
     public void explain(){
