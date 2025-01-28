@@ -1,7 +1,11 @@
 package Chess.controller;
 
+import Chess.model.vo.Record;
 import Chess.service.ChessService;
 import Chess.view.ChessMenu;
+
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class ChessController {
 
@@ -27,5 +31,24 @@ public class ChessController {
         }else{
             new ChessMenu().displayFail("업데이트 실패");
         }
+    }
+
+    public void comfirmRecord(String position){
+        chessService.updateBoard(position);
+    }
+
+    public void turn(String record){
+        String[] list = record.split(",");
+        Queue<String> Qlist = new LinkedList<>();
+        Qlist.addAll(List.of(list));
+        while(!Qlist.isEmpty()){
+            String[] move = Qlist.poll().split(":");
+            chessService.move(move[0],move[1]);
+            new ChessMenu().nextTurn();
+        }
+    }
+
+    public void close(){
+        chessService.closeCurrentBoard();
     }
 }

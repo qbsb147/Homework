@@ -183,4 +183,41 @@ public class PlayerDao {
         }
         return player;
     }
+
+    public ArrayList<Integer> myScore(Connection conn, Long userno){
+        ResultSet rset = null;
+        PreparedStatement pstmt = null;
+        ArrayList<Integer> list = new ArrayList<>();
+
+        try {
+            prop.loadFromXML(new FileInputStream("resources/query.xml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String sql =
+                userno!=null
+                ? prop.getProperty("myScore")
+                : prop.getProperty("myNullScore");
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+
+            if(userno != null){
+                pstmt.setLong(1, userno);
+                pstmt.setLong(2, userno);
+            }
+
+            rset = pstmt.executeQuery();
+            rset.next();
+            list.add(rset.getInt("WHITE"));
+            list.add(rset.getInt("BLACK"));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            close(rset);
+            close(pstmt);
+        }
+        return list;
+    }
 }

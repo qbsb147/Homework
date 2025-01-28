@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import static Chess.common.JDBCTemplate.*;
-import static Chess.common.JDBCTemplate.close;
 
 public class ChessService extends JFrame {
     private static final int BOARD_SIZE = 8;
@@ -24,9 +24,10 @@ public class ChessService extends JFrame {
     private Piece piece;
     private ArrayList<String> record = new ArrayList<>();
     private Player player;
+    private ChessService currentInstance;
 
     public ChessService() {
-
+        currentInstance = this;
         this.position = new String[][] {
                 { "wRw", "wNw", "wBw", "wQw", "wKk", "wBw", "wNw", "wRw" },
                 { "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw" },
@@ -196,7 +197,7 @@ public class ChessService extends JFrame {
                 JPanel square = (JPanel) boardPanel.getComponent((row + 1) * (BOARD_SIZE + 1) + col + 1);
                 square.removeAll(); // 기존 기물 제거
 
-                String piece = position[row][col];
+                String piece = this.position[row][col];
                 if (piece != null) {
                     JLabel pieceLabel = new JLabel(pieceImages.get(piece));
                     square.add(pieceLabel, BorderLayout.CENTER);
@@ -205,6 +206,37 @@ public class ChessService extends JFrame {
                 square.revalidate(); // 레이아웃 재검증
                 square.repaint(); // 다시 그리기
             }
+        }
+    }
+
+    public void updateBoard(String position) {
+        String refine = position.replaceAll("[\\[\\]]", "");
+        String[] refine2 = refine.split(", ");
+        String[][] refine3 = IntStream.range(0,8)
+                .mapToObj(i-> Arrays.copyOfRange(refine2, i*8,(i+1)*8))
+                .toArray(String[][]::new);
+        // 체스판의 모든 칸을 업데이트
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                JPanel square = (JPanel) boardPanel.getComponent((row + 1) * (BOARD_SIZE + 1) + col + 1);
+                square.removeAll(); // 기존 기물 제거
+
+                String piece = refine3[row][col];
+                if (piece != null) {
+                    JLabel pieceLabel = new JLabel(pieceImages.get(piece));
+                    square.add(pieceLabel, BorderLayout.CENTER);
+                }
+
+                square.revalidate(); // 레이아웃 재검증
+                square.repaint(); // 다시 그리기
+            }
+        }
+    }
+
+    public void closeCurrentBoard() {
+        if (currentInstance != null) {
+            currentInstance.dispose();
+            currentInstance = null;
         }
     }
 }

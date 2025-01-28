@@ -1,32 +1,46 @@
 package Chess.view;
 
-import Chess.controller.PlayerController;
+import Chess.controller.ChessController;
 import Chess.model.vo.Player;
+import Chess.model.vo.Record;
 
-import java.util.Scanner;
+import java.util.ArrayList;
 
 public class NonLoginChessMenu extends ChessMenu {
     public void mainMenu() {
         while (true) {
             System.out.println("========== 체스 게임 시작하기 ==========");
             System.out.println("******* 메인 메뉴 *******");
-            System.out.println("1. Player 로그인");
-            System.out.println("2. Player 등록");
+            System.out.println("1. "+ (player==null ? "Player 로그인" : "회원 페이지로 이동"));
+            System.out.println("2. Player 회원 등록");
             System.out.println("3. 오프라인 게임하기");
             System.out.println("4. Player 기록");
+            System.out.println((player!=null ? "5. Player 로그아웃" : ""));
+            System.out.println();
             System.out.println("9. 종료");
             System.out.print("메뉴 번호 입력 : ");
             int choice = sc.nextInt();
             sc.nextLine();
             
             switch (choice) {
-                case 1: playerLogin();
+                case 1:
+                    if (player == null) {
+                        playerLogin();
+                    } else {
+                        new LoginChessMenu(player).playerLoginMenu();
+                    }
                     break;
                 case 2: playerJoin();
                     break;
                 case 3: soloPlay();
                     break;
                 case 4: playerRecord();
+                    break;
+                case 5: if(player != null){
+                    player=null;
+                }else{
+                    System.out.println("잘 못 입력하였습니다. 다시 입력해주세요");
+                }
                     break;
                 case 9:
                     System.out.println("프로그램 종료.");
@@ -87,11 +101,118 @@ public class NonLoginChessMenu extends ChessMenu {
         String phone = sc.nextLine();
         System.out.println("개인정보 수집에 동의하시겠습니까?(y/n) : ");
         char agree = sc.nextLine().toUpperCase().charAt(0);
-        if(agree=='N'){
-            System.out.println("회원가입이 취소되었습니다.");
-            return;
+        while (true){
+            if(agree == 'Y') {
+                System.out.println("개인정보 수집에 동의하셨습니다.");
+                break;
+            }else if(agree == 'N'){
+                System.out.println("회원가입이 취소되었습니다.");
+                return;
+            }
+            System.out.println("잘 못 입력하셨습니다. 다시 입력해주세요.");
         }
         playerController.playerJoin(id, pwd, name, age, gender, email, phone);
     }
 
+    public void playerRecord(){
+        while (true) {
+            System.out.println("========= 나의 기록 보기 =========");
+            System.out.println("1. 나의 게임 기록 조회");
+            System.out.println("2. 나의 승률 확인하기");
+            System.out.println("3. 나가기");
+            System.out.print("메뉴 입력 : ");
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+                case 1:
+                    recordlist(0);
+                    break;
+                case 2 :
+                    myScore();
+                    return;
+                case 3 :
+                    return;
+                default:
+                    System.out.println("잘 못 입력하셨습니다. 다시 입력해주세요");
+            }
+        }
+    }
+
+    public void recordlist(int page){
+        while(true){
+            Long userno = player != null ? player.getUserNo() : null;
+            ArrayList<Record> records = playerController.inquiry(userno, page);
+            System.out.println("확인하고 싶은 나의 지난 게임 번호를 입력하세요.(현재 페이지 : "+(page+1)+")");
+            System.out.println("이전으로 돌아가고 싶으면 exit, 다음 페이지는 next, 이전 페이지는 prev");
+            System.out.print("입력 : ");
+            String choice = sc.nextLine();
+            if(choice.equals("exit")){
+                return;
+            } else if (choice.equals("next")) {
+                recordlist(page + 1);
+                return;
+            } else if (choice.equals("prev")) {
+                if(page>0){
+                    recordlist(page - 1);
+                    return;
+                }else{
+                    System.out.println("이전 페이지가 없습니다.");
+                }
+            } else {
+                String numbers = "0" + choice.replaceAll("[^0-9]", "");
+                int num = Integer.parseInt(numbers);
+                if(num>=1&& num <= records.size()){
+                    confirmRecord(num-1, records);
+                    chessController =null;
+                }else{
+                    System.out.println("잘 못 입력하셨습니다.");
+                }
+            }
+        }
+    }
+
+    public void displayRecordList(ArrayList<Record> records) {
+        System.out.println("========= 나의 플레이 목록 =========");
+        for(int i =0; i< records.size(); i++){
+            System.out.println("순번 : [ "+ (i+1) +" ]" +
+                    ", 플레이어 아이디 : < "+ (records.get(i).getId()!= null ? records.get(i).getId() : "오프라인")+" >" +
+                    ", 이긴 팀 : " + (records.get(i).getVictory().equals("W") ? "백팀" : "흑팀"));
+        }
+    }
+
+    public void confirmRecord(int choice, ArrayList<Record> records){
+        System.out.println("\n========= 마지막 장면 =========");
+        String position = records.get(choice).getPosition();
+        chessController = new ChessController();
+        chessController.comfirmRecord(position);
+
+        System.out.print("처음부터 확인해보시겠습니까?(y/n) : ");
+
+        char check = sc.nextLine().toLowerCase().charAt(0);
+        switch (check){
+            case 'y' :
+                chessController.turn(records.get(choice).getRecord());
+                break;
+            case 'n' :
+                return;
+            default:
+                System.out.println("잘 못 입력하셨습니다. 다시 입력해주세요.");
+        }
+    }
+
+    public void myScore(){
+        Long userno = player != null ? player.getUserNo() : null;
+        playerController.myScore(userno);
+    }
+
+
+    public void displayMyScoreSuccess(int total, Integer white, Integer black, Float whiteRatio, Float blackRatio) {
+        System.out.println("========= " + (player!=null ? player.getName() : "플레이어") +"님의 플레이 목록 =========");
+        System.out.println("진행한 게임 횟수 : " + total);
+        System.out.println("흰색이 이긴 횟수 : " + white);
+        System.out.println("블랙이 이긴 횟수 : " + black);
+        System.out.printf("흰색이 이긴 비율 : %.2f\n", whiteRatio);
+        System.out.printf("블랙이 이긴 비율 : %.2f\n", blackRatio);
+    }
 }

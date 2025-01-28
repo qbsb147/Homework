@@ -162,4 +162,21 @@ public class LoginChessMenu extends ChessMenu {
     public void multiPlay() {
     }
 
+    public void playerRecord(){
+        while (true) {
+            System.out.println("========= 나의 기록 보기 =========");
+            System.out.println("1. 유저의 게임 기록 조회");
+            System.out.println("2. 승률 확인하기");
+            System.out.print("메뉴 입력 : ");
+            int choice = sc.nextInt();
+            sc.nextLine();
+            switch (choice) {
+                case 1:
+                    break;
+                case 2 :
+
+                    break;
+            }
+        }
+    }
 }

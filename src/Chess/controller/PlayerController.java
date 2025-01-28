@@ -1,8 +1,12 @@
 package Chess.controller;
 
 import Chess.model.vo.Player;
+import Chess.model.vo.Record;
 import Chess.service.PlayerService;
 import Chess.view.ChessMenu;
+import Chess.view.NonLoginChessMenu;
+
+import java.util.ArrayList;
 
 public class PlayerController {
 
@@ -61,5 +65,36 @@ public class PlayerController {
                 return player;
             }
         return null;
+    }
+
+    public ArrayList<Record> inquiry(Long userno, int page){
+        ArrayList<Record> records = playerService.selectRecord(userno, page);
+        if(records.isEmpty()){
+            new ChessMenu().displayNoData("게임 기록을 찾지 못했습니다.");
+        }else{
+            new NonLoginChessMenu().displayRecordList(records);
+        }
+        return records;
+    }
+
+    public void myScore(Long userno){
+        ArrayList<Integer> result = playerService.myScore(userno);
+
+        if (!result.isEmpty()){
+            Integer total;
+            Float whiteRatio = 0f;
+            Float blackRatio = 0f;
+            Integer white = result.get(0);
+            Integer black = result.get(1);
+            if(white!=0&&black!=0){
+                total = white + black;
+                whiteRatio = (float)(white/total*100);
+                blackRatio = (float)(black/total*100);
+            }else if(white!=null)total=white;
+            else if(black!=null)total=black;
+            else total = 0;
+
+            new NonLoginChessMenu().displayMyScoreSuccess(total, white, black, whiteRatio, blackRatio);
+        }
     }
 }

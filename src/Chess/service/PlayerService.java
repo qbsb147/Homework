@@ -1,7 +1,9 @@
 package Chess.service;
 
+import Chess.model.dao.ChessDao;
 import Chess.model.dao.PlayerDao;
 import Chess.model.vo.Player;
+import Chess.model.vo.Record;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -70,6 +72,7 @@ public class PlayerService {
         close(conn);
         return result;
     }
+
     public Player checkId(String id){
         Connection conn = getConnection();
         Player player = PlayerDao.getInstance().checkId(conn, id);
@@ -81,5 +84,31 @@ public class PlayerService {
         }
         close(conn);
         return player;
+    }
+
+    public ArrayList<Chess.model.vo.Record> selectRecord(Long userno, int page){
+        Connection conn = getConnection();
+        ArrayList<Record> records = ChessDao.getInstance().selectRecord(conn, userno, page);
+
+        if (records!=null) {
+            commit(conn);
+        }else{
+            rollback(conn);
+        }
+        close(conn);
+        return records;
+    }
+
+    public ArrayList<Integer> myScore(Long userno) {
+        Connection conn = getConnection();
+        ArrayList<Integer> score = PlayerDao.getInstance().myScore(conn, userno);
+        if(!score.isEmpty()){
+            commit(conn);
+        }else{
+            rollback(conn);
+        }
+        close(conn);
+        return score;
+
     }
 }
