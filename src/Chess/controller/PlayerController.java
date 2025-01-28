@@ -86,15 +86,25 @@ public class PlayerController {
             Float blackRatio = 0f;
             Integer white = result.get(0);
             Integer black = result.get(1);
+            String ratio = white +" : "+black;
             if(white!=0&&black!=0){
                 total = white + black;
                 whiteRatio = (float)(white/total*100);
                 blackRatio = (float)(black/total*100);
-            }else if(white!=null)total=white;
-            else if(black!=null)total=black;
-            else total = 0;
+                int gcd = gcd(white, black);
+                ratio = white/gcd + " : " + black/gcd;
+            }else total = 0;
 
-            new NonLoginChessMenu().displayMyScoreSuccess(total, white, black, whiteRatio, blackRatio);
+
+            new NonLoginChessMenu().displayMyScoreSuccess(total, white, black, whiteRatio, blackRatio, ratio);
         }
+    }
+    public int gcd(int a, int b) {
+        while (b != 0) {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
     }
 }

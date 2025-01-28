@@ -206,12 +206,13 @@ public class NonLoginChessMenu extends ChessMenu {
     }
 
 
-    public void displayMyScoreSuccess(int total, Integer white, Integer black, Float whiteRatio, Float blackRatio) {
+    public void displayMyScoreSuccess(int total, Integer white, Integer black, Float whiteRatio, Float blackRatio, String gcd) {
         System.out.println("========= " + (player!=null ? player.getName() : "플레이어") +"님의 플레이 목록 =========");
         System.out.println("진행한 게임 횟수 : " + total);
         System.out.println("흰색이 이긴 횟수 : " + white);
         System.out.println("블랙이 이긴 횟수 : " + black);
         System.out.printf("흰색이 이긴 비율 : %.2f\n", whiteRatio);
         System.out.printf("블랙이 이긴 비율 : %.2f\n", blackRatio);
+        System.out.printf("비율[화이트 : 블랙] = %s\n", gcd);
     }
 }
