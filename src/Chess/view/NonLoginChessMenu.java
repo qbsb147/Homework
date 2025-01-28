@@ -16,7 +16,6 @@ public class NonLoginChessMenu extends ChessMenu {
             System.out.println("3. 오프라인 게임하기");
             System.out.println("4. Player 기록");
             System.out.println((player!=null ? "5. Player 로그아웃" : ""));
-            System.out.println();
             System.out.println("9. 종료");
             System.out.print("메뉴 번호 입력 : ");
             int choice = sc.nextInt();

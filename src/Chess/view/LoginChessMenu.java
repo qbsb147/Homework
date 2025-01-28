@@ -1,9 +1,6 @@
 package Chess.view;
 
-import Chess.controller.PlayerController;
 import Chess.model.vo.Player;
-
-import java.util.Scanner;
 
 public class LoginChessMenu extends ChessMenu {
     public LoginChessMenu(Player player) {
@@ -21,6 +18,7 @@ public class LoginChessMenu extends ChessMenu {
             System.out.println("5. 회원 정보 수정");
             System.out.println("6. 회원 탈퇴하기");
             System.out.println("7. 회원 정보 조회");
+            System.out.println("8. 이전 페이지로 이동");
             System.out.println("9. Player 로그아웃");
             System.out.print("메뉴 번호 입력 : ");
             int choice = sc.nextInt();
@@ -32,12 +30,15 @@ public class LoginChessMenu extends ChessMenu {
                     break;
                 case 3 : playerRecord();
                     break;
-                case 4 : updatePlayer();
+                case 4 : playerRecord();
                     break;
-                case 5 : deletePlayer();
+                case 5 : updatePlayer();
                     break;
-                case 6 : myInfo();
+                case 6 : deletePlayer();
                     break;
+                case 7 : myInfo();
+                    break;
+                case 8 : return;
                 case 9 :
                     System.out.println("메인화면으로 이동합니다.");
                     new NonLoginChessMenu().mainMenu();
