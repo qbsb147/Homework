@@ -25,7 +25,7 @@ public class Player {
         this.phone = phone;
     }
 
-    public Player(long userNo, String id, String pwd, String name, int age, String gender, String email, String phone) {
+    public Player(Long userNo, String id, String pwd, String name, int age, String gender, String email, String phone) {
         this.userNo = userNo;
         this.id = id;
         this.pwd = pwd;

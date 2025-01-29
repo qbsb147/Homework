@@ -161,6 +161,7 @@ public class LoginChessMenu extends ChessMenu {
     }
 
     public void multiPlay() {
+
     }
 
     public void playerRecord(){
@@ -175,7 +176,6 @@ public class LoginChessMenu extends ChessMenu {
                 case 1:
                     break;
                 case 2 :
-
                     break;
             }
         }

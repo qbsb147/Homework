@@ -1,12 +1,26 @@
 package Chess.view;
 
+import Chess.client.ChessClient;
 import Chess.controller.ChessController;
 import Chess.model.vo.Player;
 import Chess.model.vo.Record;
+import org.json.simple.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import static Chess.run.Run.SERVER_ADDRESS;
+import static Chess.run.Run.SERVER_PORT;
+
 public class NonLoginChessMenu extends ChessMenu {
+    public NonLoginChessMenu() {
+        super(SERVER_ADDRESS, SERVER_PORT);  // 기본 생성자에서 서버 연결 정보 전달
+    }
+
+    public NonLoginChessMenu(String serverAddress, int port) {
+        super(serverAddress, port);  // 서버 주소와 포트를 전달받는 생성자
+    }
+
     public void mainMenu() {
         while (true) {
             System.out.println("========== 체스 게임 시작하기 ==========");
@@ -23,11 +37,7 @@ public class NonLoginChessMenu extends ChessMenu {
             
             switch (choice) {
                 case 1:
-                    if (player == null) {
-                        playerLogin();
-                    } else {
-                        new LoginChessMenu(player).playerLoginMenu();
-                    }
+                    if (player == null) playerLogin();
                     break;
                 case 2: playerJoin();
                     break;
@@ -57,9 +67,22 @@ public class NonLoginChessMenu extends ChessMenu {
         System.out.print("비밀번호를 입력하세요 : ");
         String pwd = sc.nextLine();
 
-        player = playerController.playerLogin(id, pwd);
-        if(player!=null) new LoginChessMenu(player);
-        else System.out.println("로그인에 실패했습니다.");
+        json.put("type", "login");
+        json.put("id", id);
+        json.put("pwd", pwd);
+        JSONObject out1 = out(json);
+
+        if(json!=null) {
+            player = new Player((Long) json.get("userNo"),
+                    (String) json.get("id"),
+                    (String) json.get("pwd"),
+                    (String) json.get("name"),
+                    (Integer) json.get("age"),
+                    (String) json.get("gender"),
+                    (String) json.get("email"),
+                    (String) json.get("phone"));
+        }
+        if(player==null) System.out.println("로그인에 실패했습니다.");
     }
 
     public void playerJoin(){
@@ -163,7 +186,7 @@ public class NonLoginChessMenu extends ChessMenu {
                 int num = Integer.parseInt(numbers);
                 if(num>=1&& num <= records.size()){
                     confirmRecord(num-1, records);
-                    chessController =null;
+                    chessController = null;
                 }else{
                     System.out.println("잘 못 입력하셨습니다.");
                 }

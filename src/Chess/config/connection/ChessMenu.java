@@ -1,9 +1,10 @@
-package Chess.view;
+package Chess.config.connection;
 
 import Chess.client.ChessClient;
 import Chess.controller.ChessController;
 import Chess.controller.PlayerController;
 import Chess.model.vo.Player;
+import Chess.view.ChessBoard;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -81,16 +82,13 @@ public class ChessMenu {
         }
     }
 
-    protected JSONObject out(JSONObject json) {
+    protected void out(JSONObject json) {
         if (out != null) {
             out.println(json.toJSONString());
             out.flush();
             json.clear();
-
-            return json;
         } else {
             System.out.println("서버와 연결이 되어있지 않습니다.");
-            return null;
         }
     }
 
