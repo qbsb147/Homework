@@ -1,10 +1,15 @@
 package Chess.view;
 
-import Chess.model.vo.Player;
+import Chess.config.connection.ChessClient;
+import org.json.simple.JSONObject;
 
-public class LoginChessMenu extends ChessMenu {
-    public LoginChessMenu(Player player) {
-        this.player = player;
+import static Chess.run.Run.SERVER_ADDRESS;
+import static Chess.run.Run.SERVER_PORT;
+
+public class LoginChessClient extends ChessClient {
+    public LoginChessClient(JSONObject jsonLogin) {
+        super(SERVER_ADDRESS, SERVER_PORT);
+        this.jsonLogin = jsonLogin;
     }
 
     public void playerLoginMenu(){
@@ -41,7 +46,7 @@ public class LoginChessMenu extends ChessMenu {
                 case 8 : return;
                 case 9 :
                     System.out.println("메인화면으로 이동합니다.");
-                    new NonLoginChessMenu().mainMenu();
+                    new NonLoginChessClient().mainMenu();
                 default:
                     System.out.println("잘 못 입력하였습니다. 다시 입력해주세요");
             }
@@ -57,11 +62,14 @@ public class LoginChessMenu extends ChessMenu {
             System.out.println("비밀번호가 틀립니다.");
             return;
         }
-        updateMenu(player);
-        playerController.updatePlayer(player);
+        requestJson.put("strategy", "player");
+        requestJson.put("type", "updatePlayer");
+        updateMenu();
+        out(requestJson);
+        resultLogin();
     }
 
-    public void updateMenu(Player player){
+    public void updateMenu(){
         while (true) {
             System.out.println("========= 수정할 정보를 선택해주세요 =========");
             System.out.println("1. 비밀번호");
@@ -83,14 +91,14 @@ public class LoginChessMenu extends ChessMenu {
                     if (!pwd.equals(pwdCheck)) {
                         System.out.println("비밀번호가 다릅니다.");
                     }else{
-                        player.setPwd(pwd);
+                        requestJson.put("pwd",pwd);
                         System.out.println("비밀번호를 수정했습니다.");
                     }
                     break;
                 case 2 :
                     System.out.print("수정할 이름 : ");
                     String name = sc.nextLine();
-                    player.setName(name);
+                    requestJson.put("name",name);
                     System.out.println("이름이 수정되었습니다.");
                     break;
                 case 3 :
@@ -101,26 +109,26 @@ public class LoginChessMenu extends ChessMenu {
                         if(gender.equals("M")||gender.equals("F"))break;
                         System.out.println("성별을 잘 못 입력하셨습니다.");
                     }
-                    player.setGender(gender);
+                    requestJson.put("gender",gender);
                     System.out.println("성별이 수정되었습니다.");
                     break;
                 case 4 :
                     System.out.print("수정할 나이 : ");
                     int age = sc.nextInt();
                     sc.nextLine();
-                    player.setAge(age);
+                    requestJson.put("age",age);
                     System.out.println("나이가 수정되었습니다.");
                     break;
                 case 5 :
                     System.out.print("수정할 이메일 : ");
                     String email = sc.nextLine();
-                    player.setEmail(email);
+                    requestJson.put("email",email);
                     System.out.println("이메일이 수정되었습니다.");
                     break;
                 case 6 :
                     System.out.print("수정할 핸드폰 번호 : ");
                     String phone = sc.nextLine();
-                    player.setPhone(phone);
+                    requestJson.put("phone",phone);
                     System.out.println("핸드폰 번호가 수정되었습니다.");
                     break;
 
@@ -138,11 +146,22 @@ public class LoginChessMenu extends ChessMenu {
         System.out.print("비밀번호를 입력해주세요.");
         String pwd = sc.nextLine();
 
-        if(!player.getPwd().equals(pwd)){
+        if(!((jsonLogin.get("pwd"))).equals(pwd)){
             System.out.println("비밀번호가 틀립니다.");
             return;
         }
-        playerController.deletePlayer(player);
+        requestJson.put("strategy", "player");
+        requestJson.put("type", "deletePlayer");
+        requestJson.put("userNo",(Long)jsonLogin.get("userNo"));
+        requestJson.put("id",(String)jsonLogin.get("id"));
+        requestJson.put("pwd",(String)jsonLogin.get("pwd"));
+        requestJson.put("name",(String)jsonLogin.get("name"));
+        requestJson.put("age",((Long)jsonLogin.get("age")).intValue());
+        requestJson.put("gender",(String)jsonLogin.get("gender"));
+        requestJson.put("email",(String)jsonLogin.get("email"));
+        requestJson.put("phone",(String)jsonLogin.get("phone"));
+        out(requestJson);
+        resultPrint();
     }
 
     public void myInfo(){
@@ -173,11 +192,12 @@ public class LoginChessMenu extends ChessMenu {
             int choice = sc.nextInt();
             sc.nextLine();
             switch (choice) {
-                case 1:
+                case 1 :
                     break;
                 case 2 :
                     break;
             }
         }
     }
+
 }

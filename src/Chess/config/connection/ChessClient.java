@@ -1,12 +1,12 @@
 package Chess.config.connection;
 
-import Chess.client.ChessClient;
 import Chess.controller.ChessController;
-import Chess.controller.PlayerController;
 import Chess.model.vo.Player;
 import Chess.view.ChessBoard;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,52 +15,44 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class ChessMenu {
-    private ChessClient client;
-    JSONParser parser = new JSONParser();
-    JSONObject json = new JSONObject();
-    private String input;
+public class ChessClient {
+    protected JSONObject requestJson = new JSONObject();
+    protected JSONParser parser = new JSONParser();
     protected PrintWriter out;
     protected BufferedReader in;
     private Socket socket;
     protected Scanner sc = new Scanner(System.in);
-    protected ChessController chessController;
     protected Player player = null;
-    protected PlayerController playerController = PlayerController.getInstance();
+    protected JSONObject responseJson = null;
+    protected JSONObject jsonMap = null;
+    protected JSONObject jsonLogin = null;
+    protected JSONArray jsonArray = null;
 
-    public ChessMenu() {
+    public ChessClient() {
     }
 
-    public ChessMenu(String serverAddress, int port) {
+    public ChessClient(String serverAddress, int port) {
         try {
-            // 소켓 연결
             socket = new Socket(serverAddress, port);
-
-            // 입출력 스트림 설정
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
-            // 서버 메시지 수신을 위한 스레드 시작
             new Thread(new IncomingReader()).start();
-
-            // 연결 확인
-            if (socket == null || !socket.isConnected()) {
-                throw new IOException("서버 연결 실패");
-            }
 
         } catch (IOException e) {
             System.out.println("서버 연결 실패: " + e.getMessage());
             e.printStackTrace();
             // 연결 실패 시 자원 해제
             closeResources();
+
         }
+
     }
 
     private void closeResources() {
         try {
-            if (in != null) in.close();
-            if (out != null) out.close();
             if (socket != null) socket.close();
+            System.exit(0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,15 +63,50 @@ public class ChessMenu {
             try {
                 String serverMessage;
                 while ((serverMessage = in.readLine()) != null) {
-                    // 서버로부터 받은 메시지 처리
-                    if (!serverMessage.startsWith("{")) {
-                        System.out.println(serverMessage);
-                    }
+                    responseJson = (JSONObject) parser.parse(serverMessage);
                 }
-            } catch (IOException e) {
-                System.out.println("서버 연결이 종료되었습니다.");
+            } catch (IOException | ParseException e) {
+                System.out.println("서버 연결 종료.");
             }
         }
+    }
+
+    protected void resultLogin() {
+        while(responseJson==null){
+            System.out.println();
+        }
+        if(responseJson.get("status").equals("success")) {
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+        }else{
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+        }
+        jsonLogin = responseJson;
+
+        responseJson=null;
+    }
+
+    protected void resultPrint() {
+        while(responseJson==null){System.out.println();}
+        if(responseJson.get("status").equals("success")) {
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+        }else{
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+        }
+        jsonMap = responseJson;
+
+        responseJson=null;
+    }
+
+    protected void resultList() {
+        while(responseJson==null){System.out.println();}
+        if(responseJson.get("status").equals("success")) {
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+        }else{
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+        }
+        jsonArray = (JSONArray) responseJson.get("data");
+
+        responseJson=null;
     }
 
     protected void out(JSONObject json) {
@@ -87,6 +114,7 @@ public class ChessMenu {
             out.println(json.toJSONString());
             out.flush();
             json.clear();
+
         } else {
             System.out.println("서버와 연결이 되어있지 않습니다.");
         }
@@ -101,11 +129,7 @@ public class ChessMenu {
     }
 
     public void soloPlay() {
-        new ChessBoard().display(player);
-    }
-
-    public void displayNoData(String message){
-        System.out.println("\n"+message);
+        new ChessBoard().display(jsonLogin);
     }
 
     public void nextTurn(){
@@ -113,21 +137,4 @@ public class ChessMenu {
         String next = sc.nextLine();
     }
 
-    protected JSONObject in(BufferedReader in) {
-        try {
-            String message;
-            while ((message = in.readLine()) != null) {
-                if (message != null && message.startsWith("{")) {
-                    JSONObject json = (JSONObject) parser.parse(message);
-                    String status = (String) json.get("status");
-                    if ("success".equals(status)) {
-                        return json;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("메시지 처리 오류: " + e.getMessage());
-        }
-        return null;
-    }
 }

@@ -1,14 +1,11 @@
 package Chess.model.dao;
 
-import Chess.model.vo.Player;
 import Chess.model.vo.Record;
+import Chess.model.vo.builder.RecordBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -48,6 +45,7 @@ public class ChessDao {
             pstmt.setString(2, victory);
             pstmt.setString(3, finalPosition);
             pstmt.setString(4, allRecord);
+            pstmt.setNull(5, Types.VARCHAR);
 
             result = pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -56,6 +54,38 @@ public class ChessDao {
             close(pstmt);
         }
         return result;
+    }
+
+    public Record selectByLast(Connection conn){
+        PreparedStatement pstmt = null;
+        Record record = null;
+        ResultSet rset = null;
+
+        try {
+            prop.loadFromXML(new FileInputStream("resources/query.xml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String sql = prop.getProperty("selectByLast");
+        try {
+            pstmt = conn.prepareStatement(sql);
+            rset = pstmt.executeQuery();
+            while(rset.next()){
+
+                record = new RecordBuilder()
+                        .userNo(rset.getLong("USERNO"))
+                        .victory(rset.getString("VICTORY"))
+                        .position(rset.getString("POSITION"))
+                        .record(rset.getString("RECORD"))
+                        .build();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            close(pstmt);
+        }
+        return record;
     }
 
     public ArrayList<Record> selectRecord(Connection conn, Long userno, int page){
@@ -107,13 +137,13 @@ public class ChessDao {
             rset = preparedStatement.executeQuery();
 
             while (rset.next()){
-                Record record = new Record();
-                record.setGameNo(rset.getLong("GAMENO"));
-                record.setId(rset.getString("ID"));
-                record.setVictory(rset.getString("VICTORY"));
-                record.setPosition(rset.getString("POSITION"));
-                record.setRecord(rset.getString("RECORD"));
-
+                Record record = new RecordBuilder()
+                        .gameNo(rset.getLong("GAMENO"))
+                        .id(rset.getString("ID"))
+                        .victory(rset.getString("VICTORY"))
+                        .position(rset.getString("POSITION"))
+                        .record(rset.getString("RECORD"))
+                        .build();
                 records.add(record);
             }
 

@@ -1,6 +1,7 @@
 package Chess.model.dao;
 
 import Chess.model.vo.Player;
+import Chess.model.vo.builder.PlayerBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class PlayerDao {
 
     public Player playerLogin(String id, String pwd, Connection conn){
         ResultSet rset = null;
-        Player p = null;
+        Player player = null;
         PreparedStatement pstmt = null;
 
         try {
@@ -77,15 +78,17 @@ public class PlayerDao {
             rset = pstmt.executeQuery();
 
             while (rset.next()){
-                p = new Player();
-                p.setUserNo(rset.getLong("USERNO"));
-                p.setId(rset.getString("ID"));
-                p.setPwd(rset.getString("PWD"));
-                p.setName(rset.getString("NAME"));
-                p.setGender(rset.getString("GENDER"));
-                p.setAge(rset.getInt("AGE"));
-                p.setEmail(rset.getString("EMAIL"));
-                p.setPhone(rset.getString("PHONE"));
+
+                player = new Player(
+                        rset.getLong("USERNO")
+                        ,rset.getString("ID")
+                        ,rset.getString("PWD")
+                        ,rset.getString("NAME")
+                        ,rset.getInt("AGE")
+                        ,rset.getString("GENDER")
+                        ,rset.getString("EMAIL")
+                        ,rset.getString("PHONE")
+                );
             }
 
         } catch (SQLException e) {
@@ -94,7 +97,7 @@ public class PlayerDao {
             close(rset);
             close(pstmt);
         }
-        return p;
+        return player;
     }
 
     public int deletePlayer(Player m,Connection conn){
@@ -172,8 +175,9 @@ public class PlayerDao {
             rset = pstmt.executeQuery();
 
             while (rset.next()){
-                player = new Player();
-                player.setId(rset.getString("ID"));
+                player = new PlayerBuilder()
+                        .id(rset.getString("ID"))
+                        .build();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

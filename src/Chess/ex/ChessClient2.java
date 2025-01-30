@@ -1,16 +1,19 @@
 package Chess.ex;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.Scanner;
 
-public class ChessClient {
+public class ChessClient2 {
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
     private Scanner scanner;
 
-    public ChessClient(String serverAddress, int port) {
+    public ChessClient2(String serverAddress, int port) {
         try {
             socket = new Socket(serverAddress, port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -53,6 +56,7 @@ public class ChessClient {
 
     private class IncomingReader implements Runnable {
         public void run() {
+
             try {
                 String serverMessage;
                 while ((serverMessage = in.readLine()) != null) {
@@ -65,6 +69,6 @@ public class ChessClient {
     }
 
     public static void main(String[] args) {
-        new ChessClient("localhost", 5000);
+        new ChessClient2("localhost", 5000);
     }
 }

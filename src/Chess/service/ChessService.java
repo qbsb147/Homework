@@ -2,6 +2,7 @@ package Chess.service;
 
 import Chess.model.dao.ChessDao;
 import Chess.model.vo.Piece;
+import Chess.model.vo.Record;
 import Chess.model.vo.piece.*;
 import Chess.model.vo.Player;
 
@@ -23,7 +24,6 @@ public class ChessService extends JFrame {
     private JPanel boardPanel;
     private Piece piece;
     private ArrayList<String> record = new ArrayList<>();
-    private Player player;
     private ChessService currentInstance;
 
     public ChessService() {
@@ -190,6 +190,33 @@ public class ChessService extends JFrame {
         return result;
     }
 
+    public Record selectByLast(){
+        Connection conn = getConnection();
+        Record record = ChessDao.getInstance().selectByLast(conn);
+        if (record!=null) {
+            commit(conn);
+        }else{
+            rollback(conn);
+        }
+        return record;
+    }
+
+    public int insertLastRow(
+                             Long userNo,
+                             String victory,
+                             String position,
+                             String record){
+        Connection conn = getConnection();
+        int result = ChessDao.getInstance().insertRecord(conn, userNo, victory, record, position);
+        if (result > 0) {
+            commit(conn);
+        }else{
+            rollback(conn);
+        }
+        this.dispose();
+        return result;
+    }
+
     private void updateBoard() {
         // 체스판의 모든 칸을 업데이트
         for (int row = 0; row < BOARD_SIZE; row++) {
@@ -203,8 +230,8 @@ public class ChessService extends JFrame {
                     square.add(pieceLabel, BorderLayout.CENTER);
                 }
 
-                square.revalidate(); // 레이아웃 재검증
-                square.repaint(); // 다시 그리기
+                square.revalidate();
+                square.repaint();
             }
         }
     }
@@ -227,8 +254,8 @@ public class ChessService extends JFrame {
                     square.add(pieceLabel, BorderLayout.CENTER);
                 }
 
-                square.revalidate(); // 레이아웃 재검증
-                square.repaint(); // 다시 그리기
+                square.revalidate();
+                square.repaint();
             }
         }
     }

@@ -1,6 +1,6 @@
 package Chess.run;
 
-import Chess.view.NonLoginChessMenu;
+import Chess.view.NonLoginChessClient;
 
 public class Run {
     public static final String SERVER_ADDRESS = "localhost";
@@ -8,7 +8,7 @@ public class Run {
 
     public static void main(String[] args) {
         try {
-            NonLoginChessMenu menu = new NonLoginChessMenu(SERVER_ADDRESS, SERVER_PORT);
+            NonLoginChessClient menu = new NonLoginChessClient(SERVER_ADDRESS, SERVER_PORT);
             menu.mainMenu();
         } catch (Exception e) {
             System.out.println("서버 연결 실패");
