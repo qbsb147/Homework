@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ChessClient {
+    protected ChessController chessController;
     protected JSONObject requestJson = new JSONObject();
     protected JSONParser parser = new JSONParser();
     protected PrintWriter out;
@@ -118,14 +119,6 @@ public class ChessClient {
         } else {
             System.out.println("서버와 연결이 되어있지 않습니다.");
         }
-    }
-
-    public void displaySucccess(String message) {
-        System.out.println("\n서비스 요청 성공 : "+message);
-    }
-
-    public void displayFail(String message) {
-        System.out.println("\n서비스 요청 실패 : "+message);
     }
 
     public void soloPlay() {

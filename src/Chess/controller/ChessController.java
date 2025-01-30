@@ -1,6 +1,5 @@
 package Chess.controller;
 
-import Chess.model.vo.Record;
 import Chess.service.ChessService;
 import Chess.config.connection.ChessClient;
 import org.json.simple.JSONObject;
