@@ -8,6 +8,8 @@ import static Chess.run.Run.SERVER_ADDRESS;
 import static Chess.run.Run.SERVER_PORT;
 
 public class LoginChessClient extends ChessClient {
+    private String starter=null;
+
     public LoginChessClient(JSONObject jsonLogin) {
         super(SERVER_ADDRESS, SERVER_PORT);
         this.jsonLogin = jsonLogin;
@@ -178,10 +180,85 @@ public class LoginChessClient extends ChessClient {
     }
 
     public void multiPlay() {
-        System.out.println("1. 새로운 방 만들기");
-        System.out.println();
-        System.out.println("2. 방 찾기");
-        System.out.println();
+        while (true){
+            System.out.println("========= 상대방 찾기 =========");
+            System.out.println();
+            System.out.println("1. 새로운 방 만들기");
+            System.out.println("2. 방 찾기");
+            System.out.println("3. 이전으로 돌아가기");
+            System.out.print("입력 : ");
+            int choice = sc.nextInt();
+            sc.nextLine();
+            System.out.println();
+            switch (choice){
+                case 1 :
+                    newGame();
+                    break;
+                case 2 :
+                    findGame();
+                    break;
+                case 3:
+                    System.out.println("이전으로 돌아갑니다.");
+                    return;
+                default:
+                    System.out.println("잘 못 입력하셨습니다. 다시 입력해주세요.");
+            }
+        }
+    }
+
+    public void newGame(){
+        System.out.print("개설할 방 이름 : ");
+        String nameOfRoom = sc.nextLine();
+        out("NEW"+((String)jsonLogin.get("id"))+" : "+nameOfRoom);
+        System.out.println("새로운 방을 만들었습니다!");
+        System.out.println("참여자 기다리는 중...");
+        String response = message;
+
+    }
+
+    public void findGame() {
+        while (true){
+            out("FIND");
+            while(message==null){
+                System.out.println();
+            }
+            System.out.println("들어갈 방의 유저 이름 : 방 이름을 입력하세요.");
+            System.out.println("이전으로 돌아갈려면 exit");
+            System.out.println("========= 열린 방 목록(유저 이름 : 방 이름) =========");
+            System.out.println(message);
+            System.out.print("입력 = ");
+            String nameOfRoom = sc.nextLine();
+            if(nameOfRoom.equals("exit")){
+                return;
+            }else {
+                message=null;
+                out("JOIN↯"+(String)(jsonLogin.get("id"))+"↯"+nameOfRoom);
+                while(message==null){
+                    System.out.println();
+                }
+                String response = message;
+
+                if(response.equals("연결 완료!")){
+                    joinGame(nameOfRoom);
+                    return;
+                }
+            }
+        }
+    }
+//↯
+
+    public void joinGame(String nameOfRoom){
+        String userId = nameOfRoom.split(" : ")[0];
+        String nameRoom = nameOfRoom.split(" : ")[1];
+        System.out.println("방 이름 : "+ nameRoom);
+        System.out.println("대결 상대 : "+ userId);
+
+        int num = (int)(Math.random()*2);
+        if(num==0)starter = (String)(jsonLogin.get("Id"));
+        else starter = userId;
+
+        new MultiChessBoard(nameOfRoom, starter).display(jsonLogin);
+        out("CONNECT"+nameOfRoom);
     }
 
     public void playerRecord(){

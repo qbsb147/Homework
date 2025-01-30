@@ -18,6 +18,8 @@ import java.util.Map;
 
 public class ChessServer {
     private static Map<InetAddress, PrintWriter> clients = new HashMap<>();
+    private static Map<String, PrintWriter> standByRooms = new HashMap<>();
+    private static Map<String, PrintWriter> allRooms = new HashMap<>();
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(5000);
@@ -30,8 +32,8 @@ public class ChessServer {
         }
     }
 
-    public static synchronized void broadcast(String message) {
-        for (PrintWriter out : clients.values()) {
+    public static synchronized void broadcastRoom(String message) {
+        for (PrintWriter out : standByRooms.values()) {
             out.println(message);
         }
     }
@@ -55,22 +57,61 @@ public class ChessServer {
                 String input;
                 while ((input = in.readLine()) != null) {
                     try {
-                        JSONParser parser = new JSONParser();
-                        JSONObject inputJson = (JSONObject) parser.parse(input);
-                        Strategy strategy = null;
-                        switch ((String)(inputJson.get("strategy"))){
-                            case "player" ->{
-                                strategy = new PlayerStrategy();
+                        System.out.println(input);
+                        if (input.startsWith("{")) {
+                            JSONParser parser = new JSONParser();
+                            JSONObject inputJson = (JSONObject) parser.parse(input);
+                            Strategy strategy = null;
+                            switch ((String) (inputJson.get("strategy"))) {
+                                case "player" -> {
+                                    strategy = new PlayerStrategy();
+                                }
+                                case "chess" -> {
+                                    strategy = new ChessStrategy();
+                                }
                             }
-                            case "chess" ->{
-                                strategy = new ChessStrategy();
+                            JSONObject response = strategy.processClientMessage(inputJson);
+
+                            if (response != null) {
+                                out.println(response);
+                                out.flush();
                             }
                         }
-                        JSONObject response = strategy.processClientMessage(inputJson);
 
-                        if (response != null) {
-                            out.println(response);
-                            out.flush();
+                        if (input.startsWith("NEW")){
+                            input = input.substring(3);
+                            standByRooms.put(input, out);
+                            allRooms.put(input, out);
+                        }
+
+                        if (input.startsWith("FIND")){
+                            if(!standByRooms.isEmpty()) {
+                                for (String name : standByRooms.keySet()) {
+                                    System.out.println(name);
+                                    out.println(name);
+                                }
+                            }else{
+                                out.println("방을 찾을 수가 없음");
+                            }
+                        }
+
+                        if (input.startsWith("JOIN")){
+                            String nameOfRoom = input.split("↯",3)[2];
+
+                            if (standByRooms.containsKey(nameOfRoom)){
+                                if (allRooms.containsKey(nameOfRoom)) {
+                                    allRooms.get(nameOfRoom).println(input.split("↯",3)[1] + "님이 접속했습니다.");
+                                }
+                                out.println("연결 완료!");
+                                standByRooms.remove(nameOfRoom);
+                            }else{
+                                out.println("잘 못 입력하셨습니다.");
+                            }
+                        }
+
+                        if (input.startsWith("CONNECT")){
+                            input = input.substring(7);
+                            allRooms.get(input).println(input);
                         }
 
                     } catch (Exception e) {
@@ -89,6 +130,4 @@ public class ChessServer {
             }
         }
     }
-
-
 }

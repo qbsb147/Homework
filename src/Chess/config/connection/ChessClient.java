@@ -1,7 +1,6 @@
 package Chess.config.connection;
 
 import Chess.controller.ChessController;
-import Chess.model.vo.Player;
 import Chess.view.ChessBoard;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,6 +26,7 @@ public class ChessClient {
     protected JSONObject jsonMap = null;
     protected JSONObject jsonLogin = null;
     protected JSONArray jsonArray = null;
+    protected String message;
 
     public ChessClient() {
     }
@@ -63,7 +63,11 @@ public class ChessClient {
             try {
                 String serverMessage;
                 while ((serverMessage = in.readLine()) != null) {
-                    responseJson = (JSONObject) parser.parse(serverMessage);
+                    if(serverMessage.startsWith("{")) {
+                        responseJson = (JSONObject) parser.parse(serverMessage);
+                    }else{
+                        message = serverMessage;
+                    }
                 }
             } catch (IOException | ParseException e) {
                 System.out.println("서버 연결 종료.");
@@ -112,9 +116,16 @@ public class ChessClient {
     protected void out(JSONObject json) {
         if (out != null) {
             out.println(json.toJSONString());
-            out.flush();
             json.clear();
 
+        } else {
+            System.out.println("서버와 연결이 되어있지 않습니다.");
+        }
+    }
+
+    protected void out(String content) {
+        if (out != null) {
+            out.println(content);
         } else {
             System.out.println("서버와 연결이 되어있지 않습니다.");
         }
