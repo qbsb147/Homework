@@ -56,7 +56,7 @@ public class LoginChessClient extends ChessClient {
         System.out.print("비밀번호를 입력해주세요 : ");
         String pwd = sc.nextLine();
 
-        if(!player.getPwd().equals(pwd)){
+        if(!((String)jsonLogin.get("pwd")).equals(pwd)){
             System.out.println("비밀번호가 틀립니다.");
             return;
         }
@@ -164,21 +164,24 @@ public class LoginChessClient extends ChessClient {
 
     public void myInfo(){
         System.out.print("회원 아이디 : ");
-        System.out.println(player.getId());
+        System.out.println(jsonLogin.get("id"));
         System.out.print("회원 이름 : ");
-        System.out.println(player.getName());
+        System.out.println(jsonLogin.get("name"));
         System.out.print("회원 성별 : ");
-        System.out.println(player.getGender());
+        System.out.println(jsonLogin.get("gender"));
         System.out.print("회원 나이 : ");
-        System.out.println(player.getAge());
+        System.out.println(jsonLogin.get("age"));
         System.out.print("회원 이메일 : ");
-        System.out.println(player.getEmail());
+        System.out.println(jsonLogin.get("email"));
         System.out.print("회원 전화번호 : ");
-        System.out.println(player.getPhone());
+        System.out.println(jsonLogin.get("phone"));
     }
 
     public void multiPlay() {
-
+        System.out.println("1. 새로운 방 만들기");
+        System.out.println();
+        System.out.println("2. 방 찾기");
+        System.out.println();
     }
 
     public void playerRecord(){

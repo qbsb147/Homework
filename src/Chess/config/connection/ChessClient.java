@@ -23,7 +23,6 @@ public class ChessClient {
     protected BufferedReader in;
     private Socket socket;
     protected Scanner sc = new Scanner(System.in);
-    protected Player player = null;
     protected JSONObject responseJson = null;
     protected JSONObject jsonMap = null;
     protected JSONObject jsonLogin = null;
