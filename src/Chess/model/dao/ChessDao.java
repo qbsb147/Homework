@@ -45,7 +45,6 @@ public class ChessDao {
             pstmt.setString(2, victory);
             pstmt.setString(3, finalPosition);
             pstmt.setString(4, allRecord);
-            pstmt.setNull(5, Types.VARCHAR);
 
             result = pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -54,38 +53,6 @@ public class ChessDao {
             close(pstmt);
         }
         return result;
-    }
-
-    public Record selectByLast(Connection conn){
-        PreparedStatement pstmt = null;
-        Record record = null;
-        ResultSet rset = null;
-
-        try {
-            prop.loadFromXML(new FileInputStream("resources/query.xml"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String sql = prop.getProperty("selectByLast");
-        try {
-            pstmt = conn.prepareStatement(sql);
-            rset = pstmt.executeQuery();
-            while(rset.next()){
-
-                record = new RecordBuilder()
-                        .userNo(rset.getLong("USERNO"))
-                        .victory(rset.getString("VICTORY"))
-                        .position(rset.getString("POSITION"))
-                        .record(rset.getString("RECORD"))
-                        .build();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }finally {
-            close(pstmt);
-        }
-        return record;
     }
 
     public ArrayList<Record> selectRecord(Connection conn, Long userno, int page){

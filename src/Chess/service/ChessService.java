@@ -3,6 +3,7 @@ package Chess.service;
 import Chess.model.dao.ChessDao;
 import Chess.model.vo.Piece;
 import Chess.model.vo.Record;
+import Chess.model.vo.builder.RecordBuilder;
 import Chess.model.vo.piece.*;
 import Chess.model.vo.Player;
 
@@ -177,31 +178,19 @@ public class ChessService extends JFrame {
         return "M";
     }
 
-    public int updateRecord(Long userNo, String victory){
+    public ArrayList updateRecord(Long userNo, String victory){
         String allRecord = String.join(",", record);
         String finalPosition = Arrays.deepToString(position);
-        Connection conn = getConnection();
-        int result = ChessDao.getInstance().insertRecord(conn, userNo, victory, allRecord, finalPosition);
-        if (result > 0) {
-            commit(conn);
-        }else{
-            rollback(conn);
-        }
-        return result;
+        ArrayList reordArray = new ArrayList<>();
+        reordArray.add(userNo);
+        reordArray.add(victory);
+        reordArray.add(finalPosition);
+        reordArray.add(allRecord);
+
+        return reordArray;
     }
 
-    public Record selectByLast(){
-        Connection conn = getConnection();
-        Record record = ChessDao.getInstance().selectByLast(conn);
-        if (record!=null) {
-            commit(conn);
-        }else{
-            rollback(conn);
-        }
-        return record;
-    }
-
-    public int insertLastRow(
+    public int insertRecord(
                              Long userNo,
                              String victory,
                              String position,

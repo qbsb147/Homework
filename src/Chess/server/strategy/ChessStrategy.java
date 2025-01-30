@@ -11,7 +11,7 @@ public class ChessStrategy implements Strategy {
 
         switch (type) {
             case "insertLastRow" -> {
-                JSONObject response = chessController.insertLastRow(json);
+                JSONObject response = chessController.insertRecord(json);
                 return response;
             }
 

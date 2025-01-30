@@ -97,8 +97,7 @@ public class ChessBoard extends ChessClient {
             Long userNo = jsonLogin!=null&&jsonLogin.get("name")!=null
                     ? (Long)(jsonLogin.get("userNo"))
                     : null;
-            chessController.updateRecord(userNo, result);
-            JSONObject recordJson = chessController.selectByLast();
+            JSONObject recordJson = chessController.updateRecord(userNo, result);
             out(recordJson);
             resultPrint();
             return result;
