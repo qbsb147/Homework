@@ -1,6 +1,7 @@
 package Chess.model.dao;
 
 import Chess.model.vo.Player;
+import Chess.model.vo.builder.PlayerBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class PlayerDao {
 
     public Player playerLogin(String id, String pwd, Connection conn){
         ResultSet rset = null;
-        Player p = null;
+        Player player = null;
         PreparedStatement pstmt = null;
 
         try {
@@ -77,15 +78,17 @@ public class PlayerDao {
             rset = pstmt.executeQuery();
 
             while (rset.next()){
-                p = new Player();
-                p.setUserNo(rset.getLong("USERNO"));
-                p.setId(rset.getString("ID"));
-                p.setPwd(rset.getString("PWD"));
-                p.setName(rset.getString("NAME"));
-                p.setGender(rset.getString("GENDER"));
-                p.setAge(rset.getInt("AGE"));
-                p.setEmail(rset.getString("EMAIL"));
-                p.setPhone(rset.getString("PHONE"));
+
+                player = new Player(
+                        rset.getLong("USERNO")
+                        ,rset.getString("ID")
+                        ,rset.getString("PWD")
+                        ,rset.getString("NAME")
+                        ,rset.getInt("AGE")
+                        ,rset.getString("GENDER")
+                        ,rset.getString("EMAIL")
+                        ,rset.getString("PHONE")
+                );
             }
 
         } catch (SQLException e) {
@@ -94,7 +97,7 @@ public class PlayerDao {
             close(rset);
             close(pstmt);
         }
-        return p;
+        return player;
     }
 
     public int deletePlayer(Player m,Connection conn){
@@ -152,5 +155,73 @@ public class PlayerDao {
         }
         return result;
     }
+    public Player checkId(Connection conn, String id){
+        ResultSet rset = null;
+        Player player = null;
+        PreparedStatement pstmt = null;
 
+        try {
+            prop.loadFromXML(new FileInputStream("resources/query.xml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String sql = prop.getProperty("checkId");
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, id);
+
+            rset = pstmt.executeQuery();
+
+            while (rset.next()){
+                player = new PlayerBuilder()
+                        .id(rset.getString("ID"))
+                        .build();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            close(rset);
+            close(pstmt);
+        }
+        return player;
+    }
+
+    public ArrayList<Integer> myScore(Connection conn, Long userno){
+        ResultSet rset = null;
+        PreparedStatement pstmt = null;
+        ArrayList<Integer> list = new ArrayList<>();
+
+        try {
+            prop.loadFromXML(new FileInputStream("resources/query.xml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String sql =
+                userno!=null
+                ? prop.getProperty("myScore")
+                : prop.getProperty("myNullScore");
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+
+            if(userno != null){
+                pstmt.setLong(1, userno);
+                pstmt.setLong(2, userno);
+            }
+
+            rset = pstmt.executeQuery();
+            rset.next();
+            list.add(rset.getInt("WHITE"));
+            list.add(rset.getInt("BLACK"));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            close(rset);
+            close(pstmt);
+        }
+        return list;
+    }
 }

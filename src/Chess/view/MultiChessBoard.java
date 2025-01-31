@@ -2,22 +2,28 @@ package Chess.view;
 
 import Chess.config.connection.ChessClient;
 import Chess.controller.ChessController;
-import Chess.model.vo.Record;
 import org.json.simple.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import static Chess.run.Run.SERVER_ADDRESS;
 import static Chess.run.Run.SERVER_PORT;
 
-public class ChessBoard extends ChessClient {
+public class MultiChessBoard extends ChessClient {
+    private String nameOfRoom= null;
+    private String starter= null;
     private Scanner sc = new Scanner(System.in);
     private JSONObject jsonLogin = null;
     private ChessController chessController = new ChessController();
 
-    public ChessBoard() {
+    public MultiChessBoard() {
         super(SERVER_ADDRESS, SERVER_PORT);
+    }
+
+    public MultiChessBoard(String nameOfRoom, String starter) {
+        super(SERVER_ADDRESS, SERVER_PORT);
+        this.nameOfRoom = nameOfRoom;
+        this.starter = starter;
     }
 
     public void display(JSONObject jsonLogin){

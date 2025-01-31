@@ -1,18 +1,19 @@
 package Chess.model.dao;
 
-import Chess.model.vo.Player;
+import Chess.model.vo.Record;
+import Chess.model.vo.builder.RecordBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import static Chess.common.JDBCTemplate.close;
 
 public class ChessDao {
+    private Properties prop = new Properties();
+
     private ChessDao() {
     }
     private static class ChessDaoHolder{
@@ -23,10 +24,7 @@ public class ChessDao {
         return ChessDaoHolder.CHESS_DAO;
     }
 
-
-    private Properties prop = new Properties();
-
-    public int insertRecord(Connection conn, Player player, String victory, String allRecord, String finalPosition){
+    public int insertRecord(Connection conn, Long userNo, String victory, String allRecord, String finalPosition){
         int result = 0;
         PreparedStatement pstmt = null;
 
@@ -36,16 +34,17 @@ public class ChessDao {
             throw new RuntimeException(e);
         }
 
-        String sql = prop.getProperty("playerJoin");
+        String sql = prop.getProperty("insertRecord");
         try {
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, p.getId());
-            pstmt.setString(2, p.getPwd());
-            pstmt.setString(3, p.getName());
-            pstmt.setString(4, p.getGender());
-            pstmt.setInt(5, p.getAge());
-            pstmt.setString(6, p.getEmail());
-            pstmt.setString(7, p.getPhone());
+            if(userNo!=null){
+                pstmt.setLong(1, userNo);
+            }else{
+                pstmt.setNull(1, java.sql.Types.BIGINT);
+            }
+            pstmt.setString(2, victory);
+            pstmt.setString(3, finalPosition);
+            pstmt.setString(4, allRecord);
 
             result = pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -56,10 +55,10 @@ public class ChessDao {
         return result;
     }
 
-    public Player playerLogin(String id, String pwd, Connection conn){
+    public ArrayList<Record> selectRecord(Connection conn, Long userno, int page){
+        ArrayList<Record> records = new ArrayList<>();
+        PreparedStatement preparedStatement = null;
         ResultSet rset = null;
-        Player p = null;
-        PreparedStatement pstmt = null;
 
         try {
             prop.loadFromXML(new FileInputStream("resources/query.xml"));
@@ -67,90 +66,61 @@ public class ChessDao {
             throw new RuntimeException(e);
         }
 
-        String sql = prop.getProperty("playerLogin");
+        String sql;
+
+        int pageTop = 10*page+10;
+        int pageBottom = 10*page;
+
+        if (userno != null) {
+            sql =   "SELECT GAMENO, USERNO, VICTORY, POSITION, RECORD, ID "+
+                    "FROM (" +
+                    "    SELECT A.*, ROWNUM AS RNUM " +
+                    "    FROM SOLO_CHESS_RECORD A " +
+                    "    WHERE ROWNUM <= ? " +
+                    ") " +
+                    "LEFT JOIN PLAYER USING (USERNO) " +
+                    "WHERE USERNO= ? AND RNUM > ?";
+        }else{
+            sql = "SELECT GAMENO, USERNO, VICTORY, POSITION, RECORD, ID "+
+                    "FROM (" +
+                    "    SELECT A.*, ROWNUM AS RNUM " +
+                    "    FROM SOLO_CHESS_RECORD A " +
+                    "    WHERE ROWNUM <= ?" +
+                    ") " +
+                    "LEFT JOIN PLAYER USING (USERNO) " +
+                    "WHERE USERNO IS NULL AND RNUM > ?";
+        }
 
         try {
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, id);
-            pstmt.setString(2, pwd);
-
-            rset = pstmt.executeQuery();
+            preparedStatement = conn.prepareStatement(sql);
+            if (userno != null) {
+                preparedStatement.setLong(1, pageTop);
+                preparedStatement.setLong(2, userno);
+                preparedStatement.setLong(3, pageBottom);
+            }else{
+                preparedStatement.setLong(1, pageTop);
+                preparedStatement.setLong(2, pageBottom);
+            }
+            rset = preparedStatement.executeQuery();
 
             while (rset.next()){
-                p = new Player();
-                p.setUserNo(rset.getLong("USERNO"));
-                p.setId(rset.getString("ID"));
-                p.setPwd(rset.getString("PWD"));
-                p.setName(rset.getString("NAME"));
-                p.setGender(rset.getString("GENDER"));
-                p.setAge(rset.getInt("AGE"));
-                p.setEmail(rset.getString("EMAIL"));
-                p.setPhone(rset.getString("PHONE"));
+                Record record = new RecordBuilder()
+                        .gameNo(rset.getLong("GAMENO"))
+                        .id(rset.getString("ID"))
+                        .victory(rset.getString("VICTORY"))
+                        .position(rset.getString("POSITION"))
+                        .record(rset.getString("RECORD"))
+                        .build();
+                records.add(record);
             }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
             close(rset);
-            close(pstmt);
+            close(preparedStatement);
         }
-        return p;
-    }
-
-    public int deletePlayer(Player m,Connection conn){
-        int result = 0;
-        PreparedStatement pstmt = null;
-
-        try {
-            prop.loadFromXML(new FileInputStream("resources/query.xml"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String sql = prop.getProperty("deletePlayer");
-        try {
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setLong(1, m.getUserNo());
-
-            result = pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }finally {
-            close(pstmt);
-        }
-
-        return result;
-    }
-
-    public int updatePlayer(Player m, Connection conn){
-        int result =0;
-        PreparedStatement pstmt = null;
-
-        try {
-            prop.loadFromXML(new FileInputStream("resources/query.xml"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String sql = prop.getProperty("updatePlayer");
-        try {
-            pstmt = conn.prepareStatement(sql);
-
-            pstmt.setString(1, m.getPwd());
-            pstmt.setString(2, m.getName());
-            pstmt.setString(3, m.getGender());
-            pstmt.setInt(4, m.getAge());
-            pstmt.setString(5, m.getEmail());
-            pstmt.setString(6, m.getPhone());
-            pstmt.setLong(7, m.getUserNo());
-
-            result = pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }finally {
-            close(pstmt);
-        }
-        return result;
+        return records;
     }
 
 }

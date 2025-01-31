@@ -1,9 +1,11 @@
 package Chess.service;
 
 import Chess.model.dao.ChessDao;
-import Chess.model.dao.PlayerDao;
+import Chess.model.vo.Piece;
+import Chess.model.vo.Record;
+import Chess.model.vo.builder.RecordBuilder;
+import Chess.model.vo.piece.*;
 import Chess.model.vo.Player;
-import Chess.service.piece.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import static Chess.common.JDBCTemplate.*;
-import static Chess.common.JDBCTemplate.close;
 
 public class ChessService extends JFrame {
     private static final int BOARD_SIZE = 8;
@@ -22,10 +24,11 @@ public class ChessService extends JFrame {
     private String[][] position;
     private JPanel boardPanel;
     private Piece piece;
-    private ArrayList<String> record;
+    private ArrayList<String> record = new ArrayList<>();
+    private ChessService currentInstance;
 
     public ChessService() {
-
+        currentInstance = this;
         this.position = new String[][] {
                 { "wRw", "wNw", "wBw", "wQw", "wKk", "wBw", "wNw", "wRw" },
                 { "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw", "wPw" },
@@ -119,27 +122,27 @@ public class ChessService extends JFrame {
         switch (item.charAt(1)) {
             case 'P':
                 this.piece = new Pawn();
-                this.piece.movable(piece, move, position);
+                movable = this.piece.movable(piece, move, position);
                 break;
             case 'R':
                 this.piece = new Rook();
-                this.piece.movable(piece, move, position);
+                movable = this.piece.movable(piece, move, position);
                 break;
             case 'K':
                 this.piece = new King();
-                this.piece.movable(piece, move, position);
+                movable = this.piece.movable(piece, move, position);
                 break;
             case 'Q':
                 this.piece = new Queen();
-                this.piece.movable(piece, move, position);
+                movable = this.piece.movable(piece, move, position);
                 break;
             case 'N':
                 this.piece = new Knight();
-                this.piece.movable(piece, move, position);
+                movable = this.piece.movable(piece, move, position);
                 break;
             case 'B':
                 this.piece = new Bishop();
-                this.piece.movable(piece, move, position);
+                movable = this.piece.movable(piece, move, position);
                 break;
         }
         return movable;
@@ -148,16 +151,21 @@ public class ChessService extends JFrame {
     public String move(String piece, String move) {
         String prePosition = position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'];
         String target = position[7 - (move.charAt(0) - '1')][move.charAt(1) - 'A'];
+
+        record.add(piece + ":" + move);
+
         if (target!=null&&target.equals("wKk")) {
             JOptionPane.showMessageDialog(null, "게임 종료! 블랙팀 승리!", "체스 게임", JOptionPane.INFORMATION_MESSAGE);
             this.dispose(); // 현재 ChessService JFrame만 닫기
             return "B";
         }
+
         else if (target!=null&&target.equals("bKk")){
             JOptionPane.showMessageDialog(null, "게임 종료! 화이트팀 승리!", "체스 게임", JOptionPane.INFORMATION_MESSAGE);
             this.dispose(); // 현재 ChessService JFrame만 닫기
             return "W";
         }
+
         else {
             position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'] = null;
             position[7 - (move.charAt(0) - '1')][move.charAt(1) - 'A'] = prePosition;
@@ -170,20 +178,31 @@ public class ChessService extends JFrame {
         return "M";
     }
 
-    public void record(){
-        record.add(this.piece.toString());
-    }
-
-    public int updateRecord(Player player, String victory){
+    public ArrayList updateRecord(Long userNo, String victory){
         String allRecord = String.join(",", record);
         String finalPosition = Arrays.deepToString(position);
+        ArrayList reordArray = new ArrayList<>();
+        reordArray.add(userNo);
+        reordArray.add(victory);
+        reordArray.add(finalPosition);
+        reordArray.add(allRecord);
+
+        return reordArray;
+    }
+
+    public int insertRecord(
+                             Long userNo,
+                             String victory,
+                             String position,
+                             String record){
         Connection conn = getConnection();
-        int result = ChessDao.getInstance().insertRecord( conn, player, victory, allRecord, finalPosition);
+        int result = ChessDao.getInstance().insertRecord(conn, userNo, victory, record, position);
         if (result > 0) {
             commit(conn);
         }else{
             rollback(conn);
         }
+        this.dispose();
         return result;
     }
 
@@ -194,15 +213,46 @@ public class ChessService extends JFrame {
                 JPanel square = (JPanel) boardPanel.getComponent((row + 1) * (BOARD_SIZE + 1) + col + 1);
                 square.removeAll(); // 기존 기물 제거
 
-                String piece = position[row][col];
+                String piece = this.position[row][col];
                 if (piece != null) {
                     JLabel pieceLabel = new JLabel(pieceImages.get(piece));
                     square.add(pieceLabel, BorderLayout.CENTER);
                 }
 
-                square.revalidate(); // 레이아웃 재검증
-                square.repaint(); // 다시 그리기
+                square.revalidate();
+                square.repaint();
             }
+        }
+    }
+
+    public void updateBoard(String position) {
+        String refine = position.replaceAll("[\\[\\]]", "");
+        String[] refine2 = refine.split(", ");
+        String[][] refine3 = IntStream.range(0,8)
+                .mapToObj(i-> Arrays.copyOfRange(refine2, i*8,(i+1)*8))
+                .toArray(String[][]::new);
+        // 체스판의 모든 칸을 업데이트
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                JPanel square = (JPanel) boardPanel.getComponent((row + 1) * (BOARD_SIZE + 1) + col + 1);
+                square.removeAll(); // 기존 기물 제거
+
+                String piece = refine3[row][col];
+                if (piece != null) {
+                    JLabel pieceLabel = new JLabel(pieceImages.get(piece));
+                    square.add(pieceLabel, BorderLayout.CENTER);
+                }
+
+                square.revalidate();
+                square.repaint();
+            }
+        }
+    }
+
+    public void closeCurrentBoard() {
+        if (currentInstance != null) {
+            currentInstance.dispose();
+            currentInstance = null;
         }
     }
 }
