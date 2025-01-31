@@ -4,7 +4,7 @@ import Chess.view.NonLoginChessClient;
 
 public class Run {
     public static final String SERVER_ADDRESS = "localhost";
-    public static final int SERVER_PORT = 5000;
+    public static final int SERVER_PORT = 3600;
 
     public static void main(String[] args) {
         try {

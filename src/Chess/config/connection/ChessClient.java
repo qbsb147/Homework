@@ -2,6 +2,7 @@ package Chess.config.connection;
 
 import Chess.controller.ChessController;
 import Chess.view.ChessBoard;
+import Chess.view.LoginChessClient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -65,8 +66,14 @@ public class ChessClient {
                 while ((serverMessage = in.readLine()) != null) {
                     if(serverMessage.startsWith("{")) {
                         responseJson = (JSONObject) parser.parse(serverMessage);
+                    }else if(serverMessage.startsWith("FIND")){
+                        String message = serverMessage.substring(4);
+                        System.out.println(message);
+                    }else if(serverMessage.startsWith("JOINMASTER↯")){
+                        String userName = serverMessage.split("↯",2)[1];
+
                     }else{
-                        message = serverMessage;
+                        System.out.println(serverMessage);
                     }
                 }
             } catch (IOException | ParseException e) {

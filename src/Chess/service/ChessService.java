@@ -2,10 +2,7 @@ package Chess.service;
 
 import Chess.model.dao.ChessDao;
 import Chess.model.vo.Piece;
-import Chess.model.vo.Record;
-import Chess.model.vo.builder.RecordBuilder;
 import Chess.model.vo.piece.*;
-import Chess.model.vo.Player;
 
 import javax.swing.*;
 import java.awt.*;

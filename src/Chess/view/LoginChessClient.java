@@ -211,39 +211,36 @@ public class LoginChessClient extends ChessClient {
 
     public void newGame(){
         System.out.print("개설할 방 이름 : ");
-        String nameOfRoom = sc.nextLine();
-        out("NEW"+((String)jsonLogin.get("id"))+" : "+nameOfRoom);
+        String room = sc.nextLine();
+        out("NEW"+((String)jsonLogin.get("id"))+" : "+room);
         System.out.println("새로운 방을 만들었습니다!");
+        System.out.println("나갈려면 exit를 입력");
         System.out.println("참여자 기다리는 중...");
-        String response = message;
-
+        String input = sc.nextLine();
+        if(input.equals("exit")){
+        }else if(input.equals("start")){
+            joinGame(((String)jsonLogin.get("id"))+" : "+room);
+        }
     }
 
     public void findGame() {
         while (true){
-            out("FIND");
-            while(message==null){
-                System.out.println();
-            }
-            System.out.println("들어갈 방의 유저 이름 : 방 이름을 입력하세요.");
+            System.out.println("들어갈 방의 [유저 이름 : 방 이름]을 입력하세요.");
             System.out.println("이전으로 돌아갈려면 exit");
             System.out.println("========= 열린 방 목록(유저 이름 : 방 이름) =========");
-            System.out.println(message);
-            System.out.print("입력 = ");
+
+            out("FIND");
+
             String nameOfRoom = sc.nextLine();
+
             if(nameOfRoom.equals("exit")){
                 return;
             }else {
-                message=null;
                 out("JOIN↯"+(String)(jsonLogin.get("id"))+"↯"+nameOfRoom);
-                while(message==null){
-                    System.out.println();
-                }
-                String response = message;
 
-                if(response.equals("연결 완료!")){
+                String start = sc.nextLine();
+                if(start.equals("start")){
                     joinGame(nameOfRoom);
-                    return;
                 }
             }
         }
@@ -253,8 +250,8 @@ public class LoginChessClient extends ChessClient {
     public void joinGame(String nameOfRoom){
         String userId = nameOfRoom.split(" : ")[0];
         String nameRoom = nameOfRoom.split(" : ")[1];
-        System.out.println("방 이름 : "+ nameRoom);
-        System.out.println("대결 상대 : "+ userId);
+        System.out.println("방장 : "+ userId);
+        System.out.println("방이름 : "+ nameRoom);
 
         int num = (int)(Math.random()*2);
         if(num==0)starter = (String)(jsonLogin.get("Id"));

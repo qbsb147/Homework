@@ -22,7 +22,7 @@ public class ChessServer {
     private static Map<String, PrintWriter> allRooms = new HashMap<>();
 
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(5000);
+        ServerSocket serverSocket = new ServerSocket(3600);
         System.out.println("서버 실행 중...");
 
         while (true) {
@@ -57,7 +57,6 @@ public class ChessServer {
                 String input;
                 while ((input = in.readLine()) != null) {
                     try {
-                        System.out.println(input);
                         if (input.startsWith("{")) {
                             JSONParser parser = new JSONParser();
                             JSONObject inputJson = (JSONObject) parser.parse(input);
@@ -87,31 +86,35 @@ public class ChessServer {
                         if (input.startsWith("FIND")){
                             if(!standByRooms.isEmpty()) {
                                 for (String name : standByRooms.keySet()) {
-                                    System.out.println(name);
-                                    out.println(name);
+                                    out.println("FIND"+name);
                                 }
+                                out.print("입력 = ");
                             }else{
                                 out.println("방을 찾을 수가 없음");
                             }
                         }
 
                         if (input.startsWith("JOIN")){
+                            String userName = input.split("↯",3)[1];
                             String nameOfRoom = input.split("↯",3)[2];
 
-                            if (standByRooms.containsKey(nameOfRoom)){
-                                if (allRooms.containsKey(nameOfRoom)) {
-                                    allRooms.get(nameOfRoom).println(input.split("↯",3)[1] + "님이 접속했습니다.");
-                                }
-                                out.println("연결 완료!");
-                                standByRooms.remove(nameOfRoom);
-                            }else{
-                                out.println("잘 못 입력하셨습니다.");
-                            }
+                            standByRooms.get(nameOfRoom).println(userName + "님이 도전하였습니다.");
+                            standByRooms.get(nameOfRoom).println("게임을 시작할려면 start를 입력해주세요.");
+                            out.println("게임을 시작할려면 start 입력");
+
+                            standByRooms.remove(nameOfRoom);
+
                         }
 
-                        if (input.startsWith("CONNECT")){
-                            input = input.substring(7);
-                            allRooms.get(input).println(input);
+                        if (input.startsWith("ENTRY")){
+                            if(!standByRooms.isEmpty()) {
+                                for (String name : standByRooms.keySet()) {
+                                    out.println("ENTRY");
+                                    out.println("같이 플레이할려면 start 입력 : ");
+                                }
+                            }else{
+                                out.println("방을 찾을 수가 없음");
+                            }
                         }
 
                     } catch (Exception e) {
