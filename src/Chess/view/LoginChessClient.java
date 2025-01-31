@@ -164,6 +164,7 @@ public class LoginChessClient extends ChessClient {
         requestJson.put("phone",(String)jsonLogin.get("phone"));
         out(requestJson);
         resultPrint();
+        new NonLoginChessClient(SERVER_ADDRESS, SERVER_PORT).mainMenu();
     }
 
     public void myInfo(){
