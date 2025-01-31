@@ -175,7 +175,7 @@ public class NonLoginChessClient extends ChessClient {
             out(requestJson);
             resultList();
             displayRecordList();
-            if(jsonArray==null){
+            if(jsonArray==null&&page>0){
                 recordlist(page - 1);
                 return;
             }

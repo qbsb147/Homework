@@ -62,11 +62,13 @@ public class LoginChessClient extends ChessClient {
             System.out.println("비밀번호가 틀립니다.");
             return;
         }
+        updateMenu();
+        JSONObject loginClone = (JSONObject) jsonLogin.clone();
+        requestJson = loginClone;
         requestJson.put("strategy", "player");
         requestJson.put("type", "updatePlayer");
-        updateMenu();
         out(requestJson);
-        resultLogin();
+        resultPrint();
     }
 
     public void updateMenu(){
@@ -91,14 +93,14 @@ public class LoginChessClient extends ChessClient {
                     if (!pwd.equals(pwdCheck)) {
                         System.out.println("비밀번호가 다릅니다.");
                     }else{
-                        requestJson.put("pwd",pwd);
+                        jsonLogin.put("pwd",pwd);
                         System.out.println("비밀번호를 수정했습니다.");
                     }
                     break;
                 case 2 :
                     System.out.print("수정할 이름 : ");
                     String name = sc.nextLine();
-                    requestJson.put("name",name);
+                    jsonLogin.put("name",name);
                     System.out.println("이름이 수정되었습니다.");
                     break;
                 case 3 :
@@ -109,26 +111,26 @@ public class LoginChessClient extends ChessClient {
                         if(gender.equals("M")||gender.equals("F"))break;
                         System.out.println("성별을 잘 못 입력하셨습니다.");
                     }
-                    requestJson.put("gender",gender);
+                    jsonLogin.put("gender",gender);
                     System.out.println("성별이 수정되었습니다.");
                     break;
                 case 4 :
                     System.out.print("수정할 나이 : ");
                     int age = sc.nextInt();
                     sc.nextLine();
-                    requestJson.put("age",age);
+                    jsonLogin.put("age",age);
                     System.out.println("나이가 수정되었습니다.");
                     break;
                 case 5 :
                     System.out.print("수정할 이메일 : ");
                     String email = sc.nextLine();
-                    requestJson.put("email",email);
+                    jsonLogin.put("email",email);
                     System.out.println("이메일이 수정되었습니다.");
                     break;
                 case 6 :
                     System.out.print("수정할 핸드폰 번호 : ");
                     String phone = sc.nextLine();
-                    requestJson.put("phone",phone);
+                    jsonLogin.put("phone",phone);
                     System.out.println("핸드폰 번호가 수정되었습니다.");
                     break;
 
@@ -143,7 +145,7 @@ public class LoginChessClient extends ChessClient {
     public void deletePlayer(){
         System.out.println("========== 회원 탈퇴 ==========");
 
-        System.out.print("비밀번호를 입력해주세요.");
+        System.out.print("비밀번호를 입력해주세요 : ");
         String pwd = sc.nextLine();
 
         if(!((jsonLogin.get("pwd"))).equals(pwd)){
@@ -156,7 +158,7 @@ public class LoginChessClient extends ChessClient {
         requestJson.put("id",(String)jsonLogin.get("id"));
         requestJson.put("pwd",(String)jsonLogin.get("pwd"));
         requestJson.put("name",(String)jsonLogin.get("name"));
-        requestJson.put("age",((Long)jsonLogin.get("age")).intValue());
+        requestJson.put("age",((Long)jsonLogin.get("age")));
         requestJson.put("gender",(String)jsonLogin.get("gender"));
         requestJson.put("email",(String)jsonLogin.get("email"));
         requestJson.put("phone",(String)jsonLogin.get("phone"));
