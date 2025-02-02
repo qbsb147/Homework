@@ -4,6 +4,7 @@ import Chess.config.connection.ChessClient;
 import Chess.controller.ChessController;
 import org.json.simple.JSONObject;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 import static Chess.run.Run.SERVER_ADDRESS;
@@ -14,7 +15,7 @@ public class MultiChessBoard extends ChessClient {
     private String starter= null;
     private Scanner sc = new Scanner(System.in);
     private JSONObject jsonLogin = null;
-    private ChessController chessController = new ChessController();
+    private ChessController chessController = ChessController.getInstance();
 
     public MultiChessBoard() {
         super(SERVER_ADDRESS, SERVER_PORT);
@@ -26,7 +27,7 @@ public class MultiChessBoard extends ChessClient {
         this.starter = starter;
     }
 
-    public void display(JSONObject jsonLogin){
+    public void display(JSONObject jsonLogin) throws IOException {
         this.jsonLogin = jsonLogin;
         explain();
         progress();
@@ -44,7 +45,7 @@ public class MultiChessBoard extends ChessClient {
         System.out.println();
     }
 
-    public void progress(){
+    public void progress() throws IOException {
         String tmp = command("b");
         while (true) {
             tmp = command(tmp);
@@ -57,7 +58,7 @@ public class MultiChessBoard extends ChessClient {
         }
     }
 
-    public String command(String tmp) {
+    public String command(String tmp) throws IOException {
         System.out.println("============" + (tmp.equals("b") ? "흑" : "백") + " 기물의 차례입니다============");
         System.out.print("당신이 움직일 기물을 입력하세요. (ex. 1A) : ");
         String piece = sc.nextLine();
@@ -105,7 +106,6 @@ public class MultiChessBoard extends ChessClient {
                     : null;
             JSONObject recordJson = chessController.updateRecord(userNo, result);
             out(recordJson);
-            resultPrint();
             return result;
         }
 

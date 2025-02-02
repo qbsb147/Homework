@@ -29,4 +29,3 @@ bin/
 .DS_Store
 
 /resources/driver.properties
-/resources/query.xml

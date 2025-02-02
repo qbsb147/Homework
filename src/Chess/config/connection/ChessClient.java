@@ -1,9 +1,6 @@
 package Chess.config.connection;
 
-import Chess.controller.ChessController;
-import Chess.view.ChessBoard;
-import Chess.view.LoginChessClient;
-import org.json.simple.JSONArray;
+import Chess.view.OfflineChessMenu;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -16,18 +13,12 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ChessClient {
-    protected ChessController chessController;
-    protected JSONObject requestJson = new JSONObject();
     protected JSONParser parser = new JSONParser();
     protected PrintWriter out;
     protected BufferedReader in;
     private Socket socket;
     protected Scanner sc = new Scanner(System.in);
     protected JSONObject responseJson = null;
-    protected JSONObject jsonMap = null;
-    protected JSONObject jsonLogin = null;
-    protected JSONArray jsonArray = null;
-    protected String message;
 
     public ChessClient() {
     }
@@ -37,6 +28,8 @@ public class ChessClient {
             socket = new Socket(serverAddress, port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
+
+            new OfflineChessMenu(out, in, sc).mainMenu();
 
             new Thread(new IncomingReader()).start();
 
@@ -66,7 +59,7 @@ public class ChessClient {
                 while ((serverMessage = in.readLine()) != null) {
                     if(serverMessage.startsWith("{")) {
                         responseJson = (JSONObject) parser.parse(serverMessage);
-                    }else if(serverMessage.startsWith("FIND")){
+                    }/*else if(serverMessage.startsWith("FIND")){
                         String message = serverMessage.substring(4);
                         System.out.println(message);
                     }else if(serverMessage.startsWith("JOINMASTER↯")){
@@ -74,52 +67,13 @@ public class ChessClient {
 
                     }else{
                         System.out.println(serverMessage);
-                    }
+                    }*/
                 }
             } catch (IOException | ParseException e) {
                 System.out.println("서버 연결 종료.");
             }
         }
     }
-
-    protected void resultLogin() {
-        while(responseJson==null){
-            System.out.println();
-        }
-        if(responseJson.get("status").equals("success")) {
-            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
-        }else{
-            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
-        }
-        jsonLogin = responseJson;
-
-        responseJson=null;
-    }
-
-    protected void resultPrint() {
-        while(responseJson==null){System.out.println();}
-        if(responseJson.get("status").equals("success")) {
-            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
-        }else{
-            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
-        }
-        jsonMap = responseJson;
-
-        responseJson=null;
-    }
-
-    protected void resultList() {
-        while(responseJson==null){System.out.println();}
-        if(responseJson.get("status").equals("success")) {
-            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
-        }else{
-            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
-        }
-        jsonArray = (JSONArray) responseJson.get("data");
-
-        responseJson=null;
-    }
-
     protected void out(JSONObject json) {
         if (out != null) {
             out.println(json.toJSONString());
@@ -136,10 +90,6 @@ public class ChessClient {
         } else {
             System.out.println("서버와 연결이 되어있지 않습니다.");
         }
-    }
-
-    public void soloPlay() {
-        new ChessBoard().display(jsonLogin);
     }
 
     public void nextTurn(){

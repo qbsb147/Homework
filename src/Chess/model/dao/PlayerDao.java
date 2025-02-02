@@ -5,10 +5,7 @@ import Chess.model.vo.builder.PlayerBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -198,17 +195,16 @@ public class PlayerDao {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        String sql =
-                userno!=null
-                ? prop.getProperty("myScore")
-                : prop.getProperty("myNullScore");
+        String sql = prop.getProperty("myScore");
 
         try {
             pstmt = conn.prepareStatement(sql);
-
             if(userno != null){
                 pstmt.setLong(1, userno);
                 pstmt.setLong(2, userno);
+            }else{
+                pstmt.setNull(1, Types.BIGINT);
+                pstmt.setNull(2, Types.BIGINT);
             }
 
             rset = pstmt.executeQuery();

@@ -4,7 +4,18 @@ import Chess.controller.ChessController;
 import org.json.simple.JSONObject;
 
 public class ChessStrategy implements Strategy {
-    private ChessController chessController = new ChessController();
+    private ChessController chessController = ChessController.getInstance();
+
+    private ChessStrategy() {
+    }
+
+    private static class ChessStrategyHolder{
+        private static final ChessStrategy CHESS_STRATEGY = new ChessStrategy();
+    }
+
+    public static ChessStrategy getInstance(){
+        return ChessStrategyHolder.CHESS_STRATEGY;
+    }
 
     public JSONObject processClientMessage(JSONObject json) {
         String type = (String) json.get("type");

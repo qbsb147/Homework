@@ -1,18 +1,37 @@
 package Chess.view;
 
-import Chess.config.connection.ChessClient;
 import Chess.controller.ChessController;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import static Chess.run.Run.SERVER_ADDRESS;
-import static Chess.run.Run.SERVER_PORT;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Scanner;
 
-public class LoginChessClient extends ChessClient {
+public class OnlineChessMenu {
     private String starter=null;
+    private JSONObject jsonLogin;
+    private PrintWriter out;
+    private BufferedReader in;
+    private Scanner sc;
 
-    public LoginChessClient(JSONObject jsonLogin) {
-        super(SERVER_ADDRESS, SERVER_PORT);
+    private JSONParser parser = new JSONParser();
+    private JSONObject requestJson = new JSONObject();
+    private JSONObject responseJson = null;
+    private JSONObject jsonMap = null;
+    private JSONArray jsonArray = null;
+    private ChessController chessController = null;
+
+
+
+    public OnlineChessMenu(JSONObject jsonLogin, PrintWriter out, BufferedReader in, Scanner sc) {
         this.jsonLogin = jsonLogin;
+        this.out = out;
+        this.in = in;
+        this.sc = sc;
     }
 
     public void playerLoginMenu(){
@@ -46,13 +65,13 @@ public class LoginChessClient extends ChessClient {
                 case 7 : return;
                 case 9 :
                     System.out.println("메인화면으로 이동합니다.");
-                    new NonLoginChessClient().mainMenu();
+                    new OfflineChessMenu().mainMenu();
                 default:
                     System.out.println("잘 못 입력하였습니다. 다시 입력해주세요");
             }
         }
     }
-    public void updatePlayer(){
+    public void updatePlayer() {
         System.out.println("========== 회원 수정 ==========");
 
         System.out.print("비밀번호를 입력해주세요 : ");
@@ -142,7 +161,7 @@ public class LoginChessClient extends ChessClient {
         }
     }
 
-    public void deletePlayer(){
+    public void deletePlayer() {
         System.out.println("========== 회원 탈퇴 ==========");
 
         System.out.print("비밀번호를 입력해주세요 : ");
@@ -164,7 +183,7 @@ public class LoginChessClient extends ChessClient {
         requestJson.put("phone",(String)jsonLogin.get("phone"));
         out(requestJson);
         resultPrint();
-        new NonLoginChessClient(SERVER_ADDRESS, SERVER_PORT).mainMenu();
+        new OfflineChessMenu().mainMenu();
     }
 
     public void myInfo(){
@@ -209,7 +228,7 @@ public class LoginChessClient extends ChessClient {
         }
     }
 
-    public void newGame(){
+    public void newGame() {
         System.out.print("개설할 방 이름 : ");
         String room = sc.nextLine();
         out("NEW"+((String)jsonLogin.get("id"))+" : "+room);
@@ -218,7 +237,10 @@ public class LoginChessClient extends ChessClient {
         System.out.println("참여자 기다리는 중...");
         String input = sc.nextLine();
         if(input.equals("exit")){
-        }else if(input.equals("start")){
+            return;
+        }
+        String res = resultRes();
+        if(input.equals("start")){
             joinGame(((String)jsonLogin.get("id"))+" : "+room);
         }
     }
@@ -230,9 +252,9 @@ public class LoginChessClient extends ChessClient {
             System.out.println("========= 열린 방 목록(유저 이름 : 방 이름) =========");
 
             out("FIND");
-
+            System.out.println(resultRes());
+            System.out.println("아링라이");
             String nameOfRoom = sc.nextLine();
-
             if(nameOfRoom.equals("exit")){
                 return;
             }else {
@@ -245,9 +267,8 @@ public class LoginChessClient extends ChessClient {
             }
         }
     }
-//↯
 
-    public void joinGame(String nameOfRoom){
+    public void joinGame(String nameOfRoom) {
         String userId = nameOfRoom.split(" : ")[0];
         String nameRoom = nameOfRoom.split(" : ")[1];
         System.out.println("방장 : "+ userId);
@@ -257,11 +278,10 @@ public class LoginChessClient extends ChessClient {
         if(num==0)starter = (String)(jsonLogin.get("Id"));
         else starter = userId;
 
-        new MultiChessBoard(nameOfRoom, starter).display(jsonLogin);
         out("CONNECT"+nameOfRoom);
     }
 
-    public void playerRecord(){
+    public void playerRecord() {
         while (true) {
             System.out.println("========= 나의 기록 보기 =========");
             System.out.println("1. 나의 게임 기록 조회");
@@ -286,7 +306,7 @@ public class LoginChessClient extends ChessClient {
         }
     }
 
-    public void recordlist(int page){
+    public void recordlist(int page) {
         while(true){
             Long userno = (jsonLogin != null&&((String)(jsonLogin.get("id")))!=null) ? (Long)(jsonLogin.get("userNo")): null;
             requestJson.put("strategy", "player");
@@ -351,7 +371,7 @@ public class LoginChessClient extends ChessClient {
         System.out.println("\n========= 마지막 장면 =========");
         JSONObject json = (JSONObject) jsonArray.get(choice);
         String position = (String)(json.get("position"));
-        chessController = new ChessController();
+        chessController = ChessController.getInstance();
         chessController.comfirmRecord(position);
 
         System.out.print("처음부터 확인해보시겠습니까?(y/n) : ");
@@ -368,8 +388,8 @@ public class LoginChessClient extends ChessClient {
         }
     }
 
-    public void myScore(){
-        Long userno = jsonMap != null ? (Long)(jsonMap.get("userNo")) : null;
+    public void myScore() {
+        Long userno = jsonLogin != null ? (Long)(jsonLogin.get("userNo")) : null;
         requestJson.put("strategy", "player");
         requestJson.put("type", "myScore");
         requestJson.put("userNo", userno);
@@ -386,13 +406,100 @@ public class LoginChessClient extends ChessClient {
     }
 
     public void displayMyScoreSuccess(int total, Integer white, Integer black, Float whiteRatio, Float blackRatio, String ratio) {
-        System.out.println("========= " + ((jsonMap!=null&&jsonMap.get("name")!=null) ? jsonMap.get("name") : "플레이어") +"님의 플레이 목록 =========");
+        System.out.println("========= " + ((jsonLogin!=null&&jsonLogin.get("name")!=null) ? jsonLogin.get("name") : "플레이어") +"님의 플레이 목록 =========");
         System.out.println("진행한 게임 횟수 : " + total);
         System.out.println("흰색이 이긴 횟수 : " + white);
         System.out.println("블랙이 이긴 횟수 : " + black);
         System.out.printf("흰색이 이긴 비율 : %.2f\n", whiteRatio);
         System.out.printf("블랙이 이긴 비율 : %.2f\n", blackRatio);
         System.out.printf("비율[화이트 : 블랙] = %s\n", ratio);
+    }
+
+    public void soloPlay() {
+        new ChessBoard(out, in, sc).display(jsonLogin);
+    }
+
+    private void out(JSONObject json) {
+        if (out != null) {
+            out.println(json.toJSONString());
+            json.clear();
+
+        } else {
+            System.out.println("서버와 연결이 되어있지 않습니다.");
+        }
+    }
+
+    private void out(String content) {
+        if (out != null) {
+            out.println(content);
+        } else {
+            System.out.println("서버와 연결이 되어있지 않습니다.");
+        }
+    }
+
+    private void resultPrint() {
+        String serverMessage= null;
+        try {
+            serverMessage = in.readLine();
+            responseJson = (JSONObject) parser.parse(serverMessage);
+            if(responseJson.get("status").equals("success")) {
+                System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            }else{
+                System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            }
+            jsonMap = responseJson;
+
+            responseJson=null;
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void resultList() {
+        String serverMessage= null;
+        try {
+            serverMessage = in.readLine();
+            responseJson = (JSONObject) parser.parse(serverMessage);
+            if(responseJson.get("status").equals("success")) {
+                System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            }else{
+                System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            }
+            jsonArray = (JSONArray) responseJson.get("data");
+
+            responseJson=null;
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private String resultRes() {
+        String serverMessage= null;
+        try {
+            serverMessage = in.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return serverMessage;
+    }
+
+    private String resultRead() {
+        String serverMessage= null;
+        try {
+            while ((serverMessage = in.readLine()) != null) {
+                if(serverMessage.startsWith("FIND")){
+                    serverMessage = serverMessage.substring(4);
+                }else if(serverMessage == null || serverMessage.equals("")){
+                    break;
+                }else{
+                    System.out.println(serverMessage);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return serverMessage;
     }
 
 }

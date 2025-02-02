@@ -1,6 +1,7 @@
 package Chess.server;
 
 import Chess.server.strategy.ChessStrategy;
+import Chess.server.strategy.MultiStrategy;
 import Chess.server.strategy.PlayerStrategy;
 import Chess.server.strategy.Strategy;
 import org.json.simple.JSONObject;
@@ -63,17 +64,16 @@ public class ChessServer {
                             Strategy strategy = null;
                             switch ((String) (inputJson.get("strategy"))) {
                                 case "player" -> {
-                                    strategy = new PlayerStrategy();
+                                    strategy = PlayerStrategy.getInstance();
                                 }
                                 case "chess" -> {
-                                    strategy = new ChessStrategy();
+                                    strategy = ChessStrategy.getInstance();
                                 }
                             }
                             JSONObject response = strategy.processClientMessage(inputJson);
 
                             if (response != null) {
                                 out.println(response);
-                                out.flush();
                             }
                         }
 
@@ -85,10 +85,12 @@ public class ChessServer {
 
                         if (input.startsWith("FIND")){
                             if(!standByRooms.isEmpty()) {
+                                String str = "";
                                 for (String name : standByRooms.keySet()) {
-                                    out.println("FIND"+name);
+                                    str = str + (name+"\n");
                                 }
-                                out.print("입력 = ");
+                                str = str + "입력 = ";
+                                out.print(str);
                             }else{
                                 out.println("방을 찾을 수가 없음");
                             }

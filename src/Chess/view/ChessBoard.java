@@ -2,25 +2,34 @@ package Chess.view;
 
 import Chess.config.connection.ChessClient;
 import Chess.controller.ChessController;
-import Chess.model.vo.Record;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
-import static Chess.run.Run.SERVER_ADDRESS;
-import static Chess.run.Run.SERVER_PORT;
 
-public class ChessBoard extends ChessClient {
-    private Scanner sc = new Scanner(System.in);
+
+public class ChessBoard{
+    private PrintWriter out;
+    private BufferedReader in;
+    private Scanner sc;
     private JSONObject jsonLogin = null;
-    private ChessController chessController = new ChessController();
+    private JSONObject responseJson = null;
+    private JSONObject jsonMap = null;
+    private ChessController chessController = ChessController.getInstance();
+    private JSONParser parser = new JSONParser();
 
-    public ChessBoard() {
-        super(SERVER_ADDRESS, SERVER_PORT);
+    public ChessBoard(PrintWriter out, BufferedReader in, Scanner sc) {
+        this.out = out;
+        this.in = in;
+        this.sc = sc;
     }
 
-    public void display(JSONObject jsonLogin){
+    public void display(JSONObject jsonLogin) {
         this.jsonLogin = jsonLogin;
         explain();
         progress();
@@ -38,7 +47,7 @@ public class ChessBoard extends ChessClient {
         System.out.println();
     }
 
-    public void progress(){
+    public void progress() {
         String tmp = command("b");
         while (true) {
             tmp = command(tmp);
@@ -116,5 +125,33 @@ public class ChessBoard extends ChessClient {
         System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
         System.out.println("┃      🏆 흑 팀의 승리! 🏆      ┃");
         System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+    }
+
+    private void out(JSONObject json) {
+        if (out != null) {
+            out.println(json.toJSONString());
+            json.clear();
+
+        } else {
+            System.out.println("서버와 연결이 되어있지 않습니다.");
+        }
+    }
+
+    private void resultPrint() {
+        String serverMessage= null;
+        try {
+            serverMessage = in.readLine();
+            responseJson = (JSONObject) parser.parse(serverMessage);
+            if(responseJson.get("status").equals("success")) {
+                System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            }else{
+                System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            }
+            jsonMap = responseJson;
+
+            responseJson=null;
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

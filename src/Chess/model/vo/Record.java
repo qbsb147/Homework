@@ -44,4 +44,15 @@ public class Record {
         return record;
     }
 
+    @Override
+    public String toString() {
+        return "Record{" +
+                "gameNo=" + gameNo +
+                ", userNo=" + userNo +
+                ", id='" + id + '\'' +
+                ", victory='" + victory + '\'' +
+                ", position='" + position + '\'' +
+                ", record='" + record + '\'' +
+                '}';
+    }
 }

@@ -2,11 +2,20 @@ package Chess.server.strategy;
 
 import Chess.controller.PlayerController;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public class PlayerStrategy implements Strategy {
     private PlayerController playerController = PlayerController.getInstance();
+
+    private PlayerStrategy() {
+    }
+
+    private static class PlayerStrategyHolder {
+        private static final PlayerStrategy PLAYER_STRATEGY = new PlayerStrategy();
+    }
+
+    public static PlayerStrategy getInstance(){
+        return PlayerStrategy.PlayerStrategyHolder.PLAYER_STRATEGY;
+    }
 
     public JSONObject processClientMessage(JSONObject json) {
         String type = (String) json.get("type");

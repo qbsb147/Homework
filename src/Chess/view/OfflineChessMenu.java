@@ -1,23 +1,39 @@
 package Chess.view;
 
-import Chess.config.connection.ChessClient;
 import Chess.controller.ChessController;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import static Chess.run.Run.SERVER_ADDRESS;
-import static Chess.run.Run.SERVER_PORT;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Scanner;
 
-public class NonLoginChessClient extends ChessClient {
+public class OfflineChessMenu {
     private ChessController chessController = null;
-    public NonLoginChessClient() {
-        super(SERVER_ADDRESS, SERVER_PORT);  // 기본 생성자에서 서버 연결 정보 전달
+    private PrintWriter out;
+    private BufferedReader in;
+    private Scanner sc;
+    private JSONObject jsonLogin;
+    private JSONObject requestJson = new JSONObject();
+    private JSONObject responseJson = null;
+    private JSONParser parser = new JSONParser();
+    private JSONObject jsonMap = null;
+    private JSONArray jsonArray = null;
+
+
+    public OfflineChessMenu() {
     }
 
-    public NonLoginChessClient(String serverAddress, int port) {
-        super(serverAddress, port);  // 서버 주소와 포트를 전달받는 생성자
+    public OfflineChessMenu(PrintWriter out, BufferedReader in, Scanner sc) {
+        this.out = out;
+        this.in = in;
+        this.sc = sc;
     }
 
-    public void mainMenu() {
+    public void mainMenu(){
         while (true) {
             System.out.println("========== 체스 게임 시작하기 ==========");
             System.out.println("******* 메인 메뉴 *******");
@@ -34,7 +50,7 @@ public class NonLoginChessClient extends ChessClient {
             switch (choice) {
                 case 1:
                     if (jsonLogin == null||((String)(jsonLogin.get("id")))==null) playerLogin();
-                    else new LoginChessClient(jsonLogin).playerLoginMenu();
+                    else new OnlineChessMenu(jsonLogin, out, in, sc).playerLoginMenu();
                     break;
                 case 2: playerJoin();
                     break;
@@ -164,9 +180,9 @@ public class NonLoginChessClient extends ChessClient {
         }
     }
 
-    public void recordlist(int page){
+    public void recordlist(int page) {
         while(true){
-            Long userno = (jsonLogin != null&&((String)(jsonLogin.get("id")))!=null) ? (Long)(jsonLogin.get("userNo")): null;
+            Long userno = (jsonLogin != null&&((Long)(jsonLogin.get("userNo")))!=null) ? (Long)(jsonLogin.get("userNo")): null;
             requestJson.put("strategy", "player");
             requestJson.put("type", "inquiry");
             requestJson.put("userNo", userno);
@@ -229,7 +245,7 @@ public class NonLoginChessClient extends ChessClient {
         System.out.println("\n========= 마지막 장면 =========");
         JSONObject json = (JSONObject) jsonArray.get(choice);
         String position = (String)(json.get("position"));
-        chessController = new ChessController();
+        chessController = ChessController.getInstance();
         chessController.comfirmRecord(position);
 
         System.out.print("처음부터 확인해보시겠습니까?(y/n) : ");
@@ -246,8 +262,8 @@ public class NonLoginChessClient extends ChessClient {
         }
     }
 
-    public void myScore(){
-        Long userno = jsonMap != null ? (Long)(jsonMap.get("userNo")) : null;
+    public void myScore() {
+        Long userno = jsonLogin != null ? (Long)(jsonLogin.get("userNo")) : null;
         requestJson.put("strategy", "player");
         requestJson.put("type", "myScore");
         requestJson.put("userNo", userno);
@@ -264,7 +280,7 @@ public class NonLoginChessClient extends ChessClient {
     }
 
     public void displayMyScoreSuccess(int total, Integer white, Integer black, Float whiteRatio, Float blackRatio, String ratio) {
-        System.out.println("========= " + ((jsonMap!=null&&jsonMap.get("name")!=null) ? jsonMap.get("name") : "플레이어") +"님의 플레이 목록 =========");
+        System.out.println("========= " + ((jsonLogin!=null&&jsonLogin.get("name")!=null) ? jsonLogin.get("name") : "플레이어") +"님의 플레이 목록 =========");
         System.out.println("진행한 게임 횟수 : " + total);
         System.out.println("흰색이 이긴 횟수 : " + white);
         System.out.println("블랙이 이긴 횟수 : " + black);
@@ -272,4 +288,62 @@ public class NonLoginChessClient extends ChessClient {
         System.out.printf("블랙이 이긴 비율 : %.2f\n", blackRatio);
         System.out.printf("비율[화이트 : 블랙] = %s\n", ratio);
     }
+
+    public void soloPlay() {
+        new ChessBoard(out, in, sc).display(jsonLogin);
+    }
+
+
+    private void out(JSONObject json) {
+        if (out != null) {
+            out.println(json.toJSONString());
+            json.clear();
+
+        } else {
+            System.out.println("서버와 연결이 되어있지 않습니다.");
+        }
+    }
+
+    private void resultLogin() {
+        String serverMessage= null;
+        try {
+            serverMessage = in.readLine();
+            responseJson = (JSONObject) parser.parse(serverMessage);
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            jsonLogin = responseJson;
+
+            responseJson=null;
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void resultPrint() {
+        String serverMessage= null;
+        try {
+            serverMessage = in.readLine();
+            responseJson = (JSONObject) parser.parse(serverMessage);
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            jsonMap = responseJson;
+
+            responseJson=null;
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void resultList() {
+        String serverMessage= null;
+        try {
+            serverMessage = in.readLine();
+            responseJson = (JSONObject) parser.parse(serverMessage);
+            System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
+            jsonArray = (JSONArray) responseJson.get("data");
+
+            responseJson=null;
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
