@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="playerJoin">
+        INSERT INTO PLAYER
+        VALUES(SEQ_USERNO.NEXTVAL, ?, ?, ?, ?, ?, ?, ?)
+    </entry>
+    <entry key="playerLogin">
+        SELECT *
+        FROM PLAYER
+        WHERE ID = ? AND PWD = ?
+    </entry>
+    <entry key="deletePlayer">
+        DELETE
+        FROM PLAYER
+        WHERE USERNO = ?
+    </entry>
+    <entry key="updatePlayer">
+        UPDATE PLAYER
+        SET
+        PWD = ?,
+        NAME = ?,
+        GENDER = ?,
+        AGE = ?,
+        EMAIL = ?,
+        PHONE = ?
+        WHERE USERNO = ?
+    </entry>
+    <entry key="checkId">
+        SELECT ID
+        FROM PLAYER
+        WHERE ID = ?
+    </entry>
+    <entry key="myScore">
+        SELECT
+        COUNT(CASE WHEN VICTORY = 'W' THEN 1 END) AS WHITE,
+        COUNT(CASE WHEN VICTORY = 'B' THEN 1 END) AS BLACK
+        FROM SOLO_CHESS_RECORD
+        WHERE USERNO = ? OR (? IS NULL AND USERNO IS NULL)
+    </entry>
+    <entry key="insertRecord">
+        INSERT INTO SOLO_CHESS_RECORD
+        VALUES(SEQ_SOLO_GAMENO.NEXTVAL, ?, ?, ?, ?)
+    </entry>
+</properties>
