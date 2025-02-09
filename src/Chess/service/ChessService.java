@@ -24,15 +24,7 @@ public class ChessService extends JFrame {
     private ArrayList<String> record = new ArrayList<>();
     private ChessService currentInstance;
 
-    private static class ChessServiceHolder {
-        private static final ChessService CHESS_SERVICE = new ChessService();
-    }
-
-    public static ChessService getInstance() {
-        return ChessServiceHolder.CHESS_SERVICE;
-    }
-
-    private ChessService() {
+    public ChessService() {
         currentInstance = this;
         this.position = new String[][] {
                 { "wRw", "wNw", "wBw", "wQw", "wKk", "wBw", "wNw", "wRw" },

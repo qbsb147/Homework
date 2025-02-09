@@ -12,11 +12,12 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class OnlineChessMenu {
-    private String starter=null;
+    private String enemyId;
     private JSONObject jsonLogin;
     private PrintWriter out;
     private BufferedReader in;
     private Scanner sc;
+    private int turn;
 
     private JSONParser parser = new JSONParser();
     private JSONObject requestJson = new JSONObject();
@@ -24,6 +25,7 @@ public class OnlineChessMenu {
     private JSONObject jsonMap = null;
     private JSONArray jsonArray = null;
     private ChessController chessController = null;
+    private MultiChessBoard multiChessBoard;
 
 
 
@@ -231,17 +233,23 @@ public class OnlineChessMenu {
     public void newGame() {
         System.out.print("개설할 방 이름 : ");
         String room = sc.nextLine();
-        out("NEW"+((String)jsonLogin.get("id"))+" : "+room);
+        requestJson.put("type", "NEW");
+        requestJson.put("nameOfRoom", ((String)jsonLogin.get("id"))+" : "+room);
+        requestJson.put("strategy", "multi");
+        out(requestJson);
         System.out.println("새로운 방을 만들었습니다!");
         System.out.println("나갈려면 exit를 입력");
         System.out.println("참여자 기다리는 중...");
-        String input = sc.nextLine();
+        String input = sc.nextLine().toLowerCase();
         if(input.equals("exit")){
-            out("EXIT" + ((String)jsonLogin.get("id"))+" : "+room);
+            requestJson.put("type", "EXIT");
+            requestJson.put("nameOfRoom", ((String)jsonLogin.get("id"))+" : "+room);
+            requestJson.put("strategy", "multi");
+            out(requestJson);
             return;
         }
         String res = resultAllRead();
-        if(input.equals("start")){
+        if(input.equals("ready")){
             joinGame(((String)jsonLogin.get("id"))+" : "+room);
         }
     }
@@ -252,15 +260,24 @@ public class OnlineChessMenu {
             System.out.println("이전으로 돌아갈려면 exit");
             System.out.println("========= 열린 방 목록(유저 이름 : 방 이름) =========");
 
-            out("FIND");
-            String res = resultAllRead();
+            requestJson.put("type", "FIND");
+            requestJson.put("strategy", "multi");
+            out(requestJson);
+            resultAllRead();
             String nameOfRoom = sc.nextLine();
             if(nameOfRoom.equals("exit")){
                 return;
             }else {
-                out("JOIN↯"+(String)(jsonLogin.get("id"))+"↯"+nameOfRoom);
-                if(resultRead().equals("게임을 시작할려면 start 입력")){
+                requestJson.put("type","JOIN");
+                requestJson.put("strategy", "multi");
+                requestJson.put("participant",(String)(jsonLogin.get("id")));
+                requestJson.put("nameOfRoom",nameOfRoom);
+                out(requestJson);
+                String result = resultAllRead();
+                if(!result.equals("잘 못 입력하셨습니다. 다시 입력해주세요.")){
                     while (true){
+                        System.out.println("게임을 시작할려면 start를 입력 나가실려면 exit를 입력해주세요.");
+                        System.out.print("입력 = ");
                         String start = sc.nextLine().toLowerCase();
                         switch (start){
                             case "start" : joinGame(nameOfRoom);
@@ -275,17 +292,16 @@ public class OnlineChessMenu {
     }
 
     public void joinGame(String nameOfRoom) {
-        String userId = nameOfRoom.split(" : ")[0];
         String nameRoom = nameOfRoom.split(" : ")[1];
-        System.out.println("방장 : "+ userId);
+        System.out.println("상대방 아이디 : "+ enemyId);
         System.out.println("방이름 : "+ nameRoom);
 
-        int num = (int)(Math.random()*2);
-        if(num==0)starter = (String)(jsonLogin.get("Id"));
-        else starter = userId;
-
-        out("CONNECT"+nameOfRoom);
+        String start = sc.nextLine();
+        multiChessBoard = new MultiChessBoard(out, in, sc, turn, enemyId,jsonLogin);
+        multiChessBoard.display();
     }
+
+//--------------------------------------------------------------------------------------------------
 
     public void playerRecord() {
         while (true) {
@@ -377,7 +393,7 @@ public class OnlineChessMenu {
         System.out.println("\n========= 마지막 장면 =========");
         JSONObject json = (JSONObject) jsonArray.get(choice);
         String position = (String)(json.get("position"));
-        chessController = ChessController.getInstance();
+        chessController = new ChessController();
         chessController.comfirmRecord(position);
 
         System.out.print("처음부터 확인해보시겠습니까?(y/n) : ");
@@ -501,6 +517,10 @@ public class OnlineChessMenu {
                     break;
                 } else if (serverMessage.startsWith("FIND")) {
                     serverMessage = serverMessage.substring(4);
+                } else if (serverMessage.startsWith("ENEMY↯")) {
+                    String turn = serverMessage.split("↯",3)[1];
+                    enemyId = serverMessage.split("↯",3)[2];
+                    this.turn = Integer.parseInt(turn);
                 } else {
                     System.out.println(serverMessage);
                 }

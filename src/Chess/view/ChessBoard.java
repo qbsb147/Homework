@@ -20,7 +20,7 @@ public class ChessBoard{
     private JSONObject jsonLogin = null;
     private JSONObject responseJson = null;
     private JSONObject jsonMap = null;
-    private ChessController chessController = ChessController.getInstance();
+    private ChessController chessController = new ChessController();
     private JSONParser parser = new JSONParser();
 
     public ChessBoard(PrintWriter out, BufferedReader in, Scanner sc) {

@@ -8,21 +8,11 @@ import java.util.*;
 
 public class ChessController {
 
-    private ChessService chessService = ChessService.getInstance();
+    private ChessService chessService = new ChessService();
 
-    private ChessController(){
+    public ChessController(){
 
     }
-
-    private static class ChessControllerHolder {
-        private static final ChessController CHESS_CONTROLLER = new ChessController();
-    }
-
-    public static ChessController getInstance() {
-        return ChessController.ChessControllerHolder.CHESS_CONTROLLER;
-    }
-
-
 
     public boolean inputCheck(String input, String tmp, String method) {
         return chessService.inputCheck(input, tmp, method);

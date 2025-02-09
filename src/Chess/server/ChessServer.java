@@ -62,66 +62,23 @@ public class ChessServer {
                             JSONParser parser = new JSONParser();
                             JSONObject inputJson = (JSONObject) parser.parse(input);
                             Strategy strategy = null;
-                            switch ((String) (inputJson.get("strategy"))) {
+                            JSONObject response = null;
+                                    switch ((String) (inputJson.get("strategy"))) {
                                 case "player" -> {
                                     strategy = PlayerStrategy.getInstance();
+                                    response = strategy.processClientMessage(inputJson);
                                 }
                                 case "chess" -> {
                                     strategy = ChessStrategy.getInstance();
+                                    response = strategy.processClientMessage(inputJson);
+                                }
+                                case "multi" ->{
+                                    inputProcess(inputJson);
                                 }
                             }
-                            JSONObject response = strategy.processClientMessage(inputJson);
 
                             if (response != null) {
                                 out.println(response);
-                            }
-                        }
-
-                        if (input.startsWith("NEW")){
-                            input = input.substring(3);
-                            standByRooms.put(input, out);
-                            String id = input.split(" : ")[0];
-                            allRooms.put(input, out);
-                            allRooms.put(id, out);
-                        }
-
-                        if(input.startsWith("EXIT")){
-                            input = input.substring(4);
-                            standByRooms.remove(input);
-                            String id = input.split(" : ")[0];
-                            allRooms.remove(id);
-                        }
-
-                        if (input.startsWith("FIND")){
-                            if(!standByRooms.isEmpty()) {
-                                for (String name : standByRooms.keySet()) {
-                                    out.println(name);
-                                }
-                                out.println("입력 = ");
-                            }else{
-                                out.println("방을 찾을 수가 없음");
-                            }
-                        }
-
-                        if (input.startsWith("JOIN")){
-                            String userName = input.split("↯",3)[1];
-                            String nameOfRoom = input.split("↯",3)[2];
-                            standByRooms.get(nameOfRoom).println(userName + "님이 도전하였습니다.");
-                            standByRooms.get(nameOfRoom).println("게임을 시작할려면 start를 입력해주세요.");
-                            out.println("게임을 시작할려면 start 입력");
-
-                            standByRooms.remove(nameOfRoom);
-
-                        }
-
-                        if (input.startsWith("ENTRY")){
-                            if(!standByRooms.isEmpty()) {
-                                for (String name : standByRooms.keySet()) {
-                                    out.println("ENTRY");
-                                    out.println("같이 플레이할려면 start 입력 : ");
-                                }
-                            }else{
-                                out.println("방을 찾을 수가 없음");
                             }
                         }
 
@@ -137,6 +94,59 @@ public class ChessServer {
                     if (socket != null) socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+            }
+        }
+
+        public void inputProcess(JSONObject inputJson){
+            String type = (String) inputJson.get("type");
+
+            switch (type){
+                case "NEW" ->{
+                    String nameOfRoom = ((String)inputJson.get("nameOfRoom"));
+                    standByRooms.put(nameOfRoom, out);
+                    String id = nameOfRoom.split(" : ")[0];
+                    allRooms.put(nameOfRoom, out);
+                    allRooms.put(id, out);
+                }
+
+                case "EXIT" ->{
+                    String nameOfRoom = ((String)inputJson.get("nameOfRoom"));
+                    standByRooms.remove(nameOfRoom);
+                    String id = nameOfRoom.split(" : ")[0];
+                    allRooms.remove(id);
+                }
+
+                case "FIND" ->{
+                    if(!standByRooms.isEmpty()) {
+                        for (String name : standByRooms.keySet()) {
+                            out.println(name);
+                        }
+                        out.println("입력 = ");
+                    }else{
+                        out.println("방을 찾을 수가 없음");
+                    }
+                }
+
+                case "JOIN" ->{
+                    String nameOfRoom = ((String)inputJson.get("nameOfRoom"));
+                    if(standByRooms.containsKey(nameOfRoom)){
+                        int turn = (int)(Math.random()*2);
+                        String participant = ((String)inputJson.get("participant"));
+                        standByRooms.get(nameOfRoom).println("ENEMY↯"+(1-turn)+"↯"+participant);
+                        standByRooms.get(nameOfRoom).println("READY↯"+participant + "님이 도전하였습니다.");
+                        standByRooms.get(nameOfRoom).println("READY↯게임을 시작하기 위해선 ready를 입력해 대기해주세요.");
+                        out.println("ENEMY↯"+turn+"↯"+nameOfRoom.split(" : ")[0]);
+                        out.println("게임을 시작하기 위해선 ready를 입력해 대기해주세요.");
+                        standByRooms.remove(nameOfRoom);
+                    }else{
+                        out.println("잘 못 입력하셨습니다. 다시 입력해주세요.");
+                    }
+                }
+
+                case "PLAY" ->{
+                    String enemyId = ((String)inputJson.get("enemyId"));
+                    allRooms.get(enemyId).println(inputJson);
                 }
             }
         }

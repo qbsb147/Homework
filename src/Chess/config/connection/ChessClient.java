@@ -64,19 +64,12 @@ public class ChessClient {
             try {
                 String serverMessage;
                 while ((serverMessage = in.readLine()) != null) {
-                    if(serverMessage.startsWith("{")) {
-                        responseJson = (JSONObject) parser.parse(serverMessage);
-                    }/*else if(serverMessage.startsWith("FIND")){
-                        String message = serverMessage.substring(4);
-                        System.out.println(message);
-                    }else if(serverMessage.startsWith("JOINMASTER↯")){
-                        String userName = serverMessage.split("↯",2)[1];
-
-                    }else{
-                        System.out.println(serverMessage);
-                    }*/
+                    if(serverMessage.startsWith("READY")) {
+                        String content = serverMessage.split("↯",2)[1];
+                        System.out.println(content);
+                    }
                 }
-            } catch (IOException | ParseException e) {
+            } catch (IOException e) {
                 System.out.println("서버 연결 종료.");
             }
         }

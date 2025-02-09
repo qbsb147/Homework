@@ -4,7 +4,7 @@ import Chess.controller.ChessController;
 import org.json.simple.JSONObject;
 
 public class ChessStrategy implements Strategy {
-    private ChessController chessController = ChessController.getInstance();
+    private ChessController chessController = new ChessController();
 
     private ChessStrategy() {
     }

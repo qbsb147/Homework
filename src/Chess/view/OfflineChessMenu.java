@@ -245,7 +245,7 @@ public class OfflineChessMenu {
         System.out.println("\n========= 마지막 장면 =========");
         JSONObject json = (JSONObject) jsonArray.get(choice);
         String position = (String)(json.get("position"));
-        chessController = ChessController.getInstance();
+        chessController = new ChessController();
         chessController.comfirmRecord(position);
 
         System.out.print("처음부터 확인해보시겠습니까?(y/n) : ");

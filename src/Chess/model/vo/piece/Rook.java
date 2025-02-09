@@ -15,7 +15,7 @@ public class Rook extends Piece {
             if(sub>0)sub--;
             else sub++; // 도착지에서 1칸 감소
             while(sub!=0){
-                if((position[7 - (prePos.charAt(0) - '1')][prePos.charAt(1)+sub] != null))return false;   //사이에 뭔가 있으면 멈춤
+                if((position[7 - (prePos.charAt(0) - '1')][prePos.charAt(1) - 'A'+sub] != null))return false;   //사이에 뭔가 있으면 멈춤
                 if(sub>0)sub--;
                 else sub++;
             }
