@@ -237,9 +237,10 @@ public class OnlineChessMenu {
         System.out.println("참여자 기다리는 중...");
         String input = sc.nextLine();
         if(input.equals("exit")){
+            out("EXIT" + ((String)jsonLogin.get("id"))+" : "+room);
             return;
         }
-        String res = resultRes();
+        String res = resultAllRead();
         if(input.equals("start")){
             joinGame(((String)jsonLogin.get("id"))+" : "+room);
         }
@@ -252,17 +253,22 @@ public class OnlineChessMenu {
             System.out.println("========= 열린 방 목록(유저 이름 : 방 이름) =========");
 
             out("FIND");
-            System.out.println(resultRes());
-            System.out.println("아링라이");
+            String res = resultAllRead();
             String nameOfRoom = sc.nextLine();
             if(nameOfRoom.equals("exit")){
                 return;
             }else {
                 out("JOIN↯"+(String)(jsonLogin.get("id"))+"↯"+nameOfRoom);
-
-                String start = sc.nextLine();
-                if(start.equals("start")){
-                    joinGame(nameOfRoom);
+                if(resultRead().equals("게임을 시작할려면 start 입력")){
+                    while (true){
+                        String start = sc.nextLine().toLowerCase();
+                        switch (start){
+                            case "start" : joinGame(nameOfRoom);
+                            case "exit" : return;
+                            default:
+                                System.out.println("잘 못 입력하셨습니다. 나가실려면 exit, 시작은 start");
+                        }
+                    }
                 }
             }
         }
@@ -474,7 +480,7 @@ public class OnlineChessMenu {
 
     }
 
-    private String resultRes() {
+    private String resultRead() {
         String serverMessage= null;
         try {
             serverMessage = in.readLine();
@@ -484,16 +490,24 @@ public class OnlineChessMenu {
         return serverMessage;
     }
 
-    private String resultRead() {
+    private String resultAllRead() {
         String serverMessage= null;
         try {
-            while ((serverMessage = in.readLine()) != null) {
-                if(serverMessage.startsWith("FIND")){
-                    serverMessage = serverMessage.substring(4);
-                }else if(serverMessage == null || serverMessage.equals("")){
+            while (true) {
+
+                serverMessage = in.readLine();
+
+                if (serverMessage == null || serverMessage.isEmpty()) {
                     break;
-                }else{
+                } else if (serverMessage.startsWith("FIND")) {
+                    serverMessage = serverMessage.substring(4);
+                } else {
                     System.out.println(serverMessage);
+                }
+
+                // ★ 입력이 준비되지 않았으면 반복문 탈출 ★
+                if (!in.ready()) {
+                    break;
                 }
             }
         } catch (IOException e) {

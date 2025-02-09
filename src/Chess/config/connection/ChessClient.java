@@ -13,12 +13,12 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ChessClient {
-    protected JSONParser parser = new JSONParser();
-    protected PrintWriter out;
-    protected BufferedReader in;
+    private JSONParser parser = new JSONParser();
+    private PrintWriter out;
+    private BufferedReader in;
     private Socket socket;
-    protected Scanner sc = new Scanner(System.in);
-    protected JSONObject responseJson = null;
+    private Scanner sc = new Scanner(System.in);
+    private JSONObject responseJson = null;
 
     public ChessClient() {
     }
@@ -39,6 +39,13 @@ public class ChessClient {
             // 연결 실패 시 자원 해제
             closeResources();
 
+        }finally{
+            try {
+                in.close();
+                out.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }

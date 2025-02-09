@@ -80,17 +80,24 @@ public class ChessServer {
                         if (input.startsWith("NEW")){
                             input = input.substring(3);
                             standByRooms.put(input, out);
+                            String id = input.split(" : ")[0];
                             allRooms.put(input, out);
+                            allRooms.put(id, out);
+                        }
+
+                        if(input.startsWith("EXIT")){
+                            input = input.substring(4);
+                            standByRooms.remove(input);
+                            String id = input.split(" : ")[0];
+                            allRooms.remove(id);
                         }
 
                         if (input.startsWith("FIND")){
                             if(!standByRooms.isEmpty()) {
-                                String str = "";
                                 for (String name : standByRooms.keySet()) {
-                                    str = str + (name+"\n");
+                                    out.println(name);
                                 }
-                                str = str + "입력 = ";
-                                out.print(str);
+                                out.println("입력 = ");
                             }else{
                                 out.println("방을 찾을 수가 없음");
                             }
@@ -99,7 +106,6 @@ public class ChessServer {
                         if (input.startsWith("JOIN")){
                             String userName = input.split("↯",3)[1];
                             String nameOfRoom = input.split("↯",3)[2];
-
                             standByRooms.get(nameOfRoom).println(userName + "님이 도전하였습니다.");
                             standByRooms.get(nameOfRoom).println("게임을 시작할려면 start를 입력해주세요.");
                             out.println("게임을 시작할려면 start 입력");
