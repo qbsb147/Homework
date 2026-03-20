@@ -44,4 +44,9 @@ public class Pawn extends Piece {
         }
         return false;
     }
+
+    @Override
+    public Character getKey() {
+        return 'P';
+    }
 }

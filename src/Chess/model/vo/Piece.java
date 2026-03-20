@@ -5,4 +5,5 @@ public abstract class Piece {
     protected String destination;
 
     abstract public boolean movable(String prePos, String nextPos, String[][] position);
+    public abstract Character getKey();
 }

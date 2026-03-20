@@ -10,8 +10,10 @@ public class ChessController {
 
     private ChessService chessService = new ChessService();
 
-    public ChessController(){
+    public ChessController(){}
 
+    public void start(){
+        chessService.start();
     }
 
     public boolean inputCheck(String input, String tmp, String method) {

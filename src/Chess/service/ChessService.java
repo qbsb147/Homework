@@ -2,6 +2,7 @@ package Chess.service;
 
 import Chess.model.dao.ChessDao;
 import Chess.model.vo.Piece;
+import Chess.model.vo.PieceFactory;
 import Chess.model.vo.piece.*;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -24,7 +26,9 @@ public class ChessService extends JFrame {
     private ArrayList<String> record = new ArrayList<>();
     private ChessService currentInstance;
 
-    public ChessService() {
+    public ChessService() {}
+
+    public void start() {
         currentInstance = this;
         this.position = new String[][] {
                 { "wRw", "wNw", "wBw", "wQw", "wKk", "wBw", "wNw", "wRw" },
@@ -113,36 +117,12 @@ public class ChessService extends JFrame {
 
     public boolean movable(String piece, String move) {
         String item = position[7 - (piece.charAt(0) - '1')][piece.charAt(1) - 'A'];
-        boolean movable = false;
         if (item == null)
             return false;
-        switch (item.charAt(1)) {
-            case 'P':
-                this.piece = new Pawn();
-                movable = this.piece.movable(piece, move, position);
-                break;
-            case 'R':
-                this.piece = new Rook();
-                movable = this.piece.movable(piece, move, position);
-                break;
-            case 'K':
-                this.piece = new King();
-                movable = this.piece.movable(piece, move, position);
-                break;
-            case 'Q':
-                this.piece = new Queen();
-                movable = this.piece.movable(piece, move, position);
-                break;
-            case 'N':
-                this.piece = new Knight();
-                movable = this.piece.movable(piece, move, position);
-                break;
-            case 'B':
-                this.piece = new Bishop();
-                movable = this.piece.movable(piece, move, position);
-                break;
-        }
-        return movable;
+        PieceFactory pieceFactory = new PieceFactory(
+                List.of(new Bishop(), new King(), new Knight(), new Pawn(), new Queen(), new Rook()));
+        this.piece = pieceFactory.getPiece(item.charAt(1));
+        return this.piece.movable(piece, move, position);
     }
 
     public String move(String piece, String move) {
@@ -178,13 +158,13 @@ public class ChessService extends JFrame {
     public ArrayList updateRecord(Long userNo, String victory){
         String allRecord = String.join(",", record);
         String finalPosition = Arrays.deepToString(position);
-        ArrayList reordArray = new ArrayList<>();
-        reordArray.add(userNo);
-        reordArray.add(victory);
-        reordArray.add(finalPosition);
-        reordArray.add(allRecord);
+        ArrayList recordArray = new ArrayList<>();
+        recordArray.add(userNo);
+        recordArray.add(victory);
+        recordArray.add(finalPosition);
+        recordArray.add(allRecord);
 
-        return reordArray;
+        return recordArray;
     }
 
     public int insertRecord(

@@ -50,7 +50,7 @@ public class OfflineChessMenu {
             switch (choice) {
                 case 1:
                     if (jsonLogin == null||((String)(jsonLogin.get("id")))==null) playerLogin();
-                    else new OnlineChessMenu(jsonLogin, out, in, sc).playerLoginMenu();
+                    else new HostChessMenu(jsonLogin, out, in, sc).playerLoginMenu();
                     break;
                 case 2: playerJoin();
                     break;

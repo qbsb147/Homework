@@ -17,6 +17,11 @@ public class PlayerStrategy implements Strategy {
         return PlayerStrategy.PlayerStrategyHolder.PLAYER_STRATEGY;
     }
 
+    @Override
+    public String getKey() {
+        return "player";
+    }
+
     public JSONObject processClientMessage(JSONObject json) {
         String type = (String) json.get("type");
 

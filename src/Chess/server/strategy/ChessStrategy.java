@@ -17,6 +17,11 @@ public class ChessStrategy implements Strategy {
         return ChessStrategyHolder.CHESS_STRATEGY;
     }
 
+    @Override
+    public String getKey() {
+        return "chess";
+    }
+
     public JSONObject processClientMessage(JSONObject json) {
         String type = (String) json.get("type");
 

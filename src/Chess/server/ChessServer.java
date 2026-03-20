@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ChessServer {
@@ -43,9 +44,16 @@ public class ChessServer {
         private Socket socket;
         private PrintWriter out;
         private BufferedReader in;
+        private StrategyFactory strategyFactory;
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
+
+            this.strategyFactory = new StrategyFactory(List.of(
+                    PlayerStrategy.getInstance(),
+                    ChessStrategy.getInstance(),
+                    MultiStrategy.getInstance(clients, standByRooms, allRooms, out, in)
+            ));
         }
 
         public void run() {
@@ -61,27 +69,13 @@ public class ChessServer {
                         if (input.startsWith("{")) {
                             JSONParser parser = new JSONParser();
                             JSONObject inputJson = (JSONObject) parser.parse(input);
-                            Strategy strategy = null;
-                            JSONObject response = null;
-                                    switch ((String) (inputJson.get("strategy"))) {
-                                case "player" -> {
-                                    strategy = PlayerStrategy.getInstance();
-                                    response = strategy.processClientMessage(inputJson);
-                                }
-                                case "chess" -> {
-                                    strategy = ChessStrategy.getInstance();
-                                    response = strategy.processClientMessage(inputJson);
-                                }
-                                case "multi" ->{
-                                    inputProcess(inputJson);
-                                }
-                            }
-
+                            String key = (String) (inputJson.get("strategy"));
+                            Strategy strategy = strategyFactory.getStrategy(key);
+                            JSONObject response = strategy.processClientMessage(inputJson);
                             if (response != null) {
                                 out.println(response);
                             }
                         }
-
                     } catch (Exception e) {
                         System.out.println("메시지 처리 오류: " + e.getMessage());
                         e.printStackTrace();
@@ -98,57 +92,5 @@ public class ChessServer {
             }
         }
 
-        public void inputProcess(JSONObject inputJson){
-            String type = (String) inputJson.get("type");
-
-            switch (type){
-                case "NEW" ->{
-                    String nameOfRoom = ((String)inputJson.get("nameOfRoom"));
-                    standByRooms.put(nameOfRoom, out);
-                    String id = nameOfRoom.split(" : ")[0];
-                    allRooms.put(nameOfRoom, out);
-                    allRooms.put(id, out);
-                }
-
-                case "EXIT" ->{
-                    String nameOfRoom = ((String)inputJson.get("nameOfRoom"));
-                    standByRooms.remove(nameOfRoom);
-                    String id = nameOfRoom.split(" : ")[0];
-                    allRooms.remove(id);
-                }
-
-                case "FIND" ->{
-                    if(!standByRooms.isEmpty()) {
-                        for (String name : standByRooms.keySet()) {
-                            out.println(name);
-                        }
-                        out.println("입력 = ");
-                    }else{
-                        out.println("방을 찾을 수가 없음");
-                    }
-                }
-
-                case "JOIN" ->{
-                    String nameOfRoom = ((String)inputJson.get("nameOfRoom"));
-                    if(standByRooms.containsKey(nameOfRoom)){
-                        int turn = (int)(Math.random()*2);
-                        String participant = ((String)inputJson.get("participant"));
-                        standByRooms.get(nameOfRoom).println("ENEMY↯"+(1-turn)+"↯"+participant);
-                        standByRooms.get(nameOfRoom).println("READY↯"+participant + "님이 도전하였습니다.");
-                        standByRooms.get(nameOfRoom).println("READY↯게임을 시작하기 위해선 ready를 입력해 대기해주세요.");
-                        out.println("ENEMY↯"+turn+"↯"+nameOfRoom.split(" : ")[0]);
-                        out.println("게임을 시작하기 위해선 ready를 입력해 대기해주세요.");
-                        standByRooms.remove(nameOfRoom);
-                    }else{
-                        out.println("잘 못 입력하셨습니다. 다시 입력해주세요.");
-                    }
-                }
-
-                case "PLAY" ->{
-                    String enemyId = ((String)inputJson.get("enemyId"));
-                    allRooms.get(enemyId).println(inputJson);
-                }
-            }
-        }
     }
 }

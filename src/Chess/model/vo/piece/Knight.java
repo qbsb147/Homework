@@ -14,4 +14,9 @@ public class Knight extends Piece {
                 &&Math.abs(nextPos.charAt(1) - prePos.charAt(1))==2))return true;
         return false;
     }
+
+    @Override
+    public Character getKey() {
+        return 'N';
+    }
 }

@@ -17,4 +17,9 @@ public class Queen extends Piece {
             return bishop.movable(prePos, nextPos, position);
         }
     }
+
+    @Override
+    public Character getKey() {
+        return 'Q';
+    }
 }

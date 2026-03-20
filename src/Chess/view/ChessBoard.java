@@ -31,6 +31,7 @@ public class ChessBoard{
 
     public void display(JSONObject jsonLogin) {
         this.jsonLogin = jsonLogin;
+        chessController.start();
         explain();
         progress();
     }

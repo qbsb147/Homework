@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class OnlineChessMenu {
+public class HostChessMenu {
     private String enemyId;
     private JSONObject jsonLogin;
     private PrintWriter out;
@@ -26,10 +26,9 @@ public class OnlineChessMenu {
     private JSONArray jsonArray = null;
     private ChessController chessController = null;
     private MultiChessBoard multiChessBoard;
+    private GuestChessMenu guestChessMenu;
 
-
-
-    public OnlineChessMenu(JSONObject jsonLogin, PrintWriter out, BufferedReader in, Scanner sc) {
+    public HostChessMenu(JSONObject jsonLogin, PrintWriter out, BufferedReader in, Scanner sc) {
         this.jsonLogin = jsonLogin;
         this.out = out;
         this.in = in;
@@ -73,6 +72,7 @@ public class OnlineChessMenu {
             }
         }
     }
+
     public void updatePlayer() {
         System.out.println("========== 회원 수정 ==========");
 
@@ -83,6 +83,7 @@ public class OnlineChessMenu {
             System.out.println("비밀번호가 틀립니다.");
             return;
         }
+
         updateMenu();
         JSONObject loginClone = (JSONObject) jsonLogin.clone();
         requestJson = loginClone;
@@ -179,7 +180,7 @@ public class OnlineChessMenu {
         requestJson.put("id",(String)jsonLogin.get("id"));
         requestJson.put("pwd",(String)jsonLogin.get("pwd"));
         requestJson.put("name",(String)jsonLogin.get("name"));
-        requestJson.put("age",((Long)jsonLogin.get("age")));
+        requestJson.put("age",(Long)jsonLogin.get("age"));
         requestJson.put("gender",(String)jsonLogin.get("gender"));
         requestJson.put("email",(String)jsonLogin.get("email"));
         requestJson.put("phone",(String)jsonLogin.get("phone"));
@@ -219,7 +220,7 @@ public class OnlineChessMenu {
                     newGame();
                     break;
                 case 2 :
-                    findGame();
+                    GuestChessMenu.getInstance(jsonLogin, out, in, sc).findGame();
                     break;
                 case 3:
                     System.out.println("이전으로 돌아갑니다.");
@@ -241,6 +242,7 @@ public class OnlineChessMenu {
         System.out.println("나갈려면 exit를 입력");
         System.out.println("참여자 기다리는 중...");
         String input = sc.nextLine().toLowerCase();
+
         if(input.equals("exit")){
             requestJson.put("type", "EXIT");
             requestJson.put("nameOfRoom", ((String)jsonLogin.get("id"))+" : "+room);
@@ -248,46 +250,10 @@ public class OnlineChessMenu {
             out(requestJson);
             return;
         }
+
         String res = resultAllRead();
         if(input.equals("ready")){
             joinGame(((String)jsonLogin.get("id"))+" : "+room);
-        }
-    }
-
-    public void findGame() {
-        while (true){
-            System.out.println("들어갈 방의 [유저 이름 : 방 이름]을 입력하세요.");
-            System.out.println("이전으로 돌아갈려면 exit");
-            System.out.println("========= 열린 방 목록(유저 이름 : 방 이름) =========");
-
-            requestJson.put("type", "FIND");
-            requestJson.put("strategy", "multi");
-            out(requestJson);
-            resultAllRead();
-            String nameOfRoom = sc.nextLine();
-            if(nameOfRoom.equals("exit")){
-                return;
-            }else {
-                requestJson.put("type","JOIN");
-                requestJson.put("strategy", "multi");
-                requestJson.put("participant",(String)(jsonLogin.get("id")));
-                requestJson.put("nameOfRoom",nameOfRoom);
-                out(requestJson);
-                String result = resultAllRead();
-                if(!result.equals("잘 못 입력하셨습니다. 다시 입력해주세요.")){
-                    while (true){
-                        System.out.println("게임을 시작할려면 start를 입력 나가실려면 exit를 입력해주세요.");
-                        System.out.print("입력 = ");
-                        String start = sc.nextLine().toLowerCase();
-                        switch (start){
-                            case "start" : joinGame(nameOfRoom);
-                            case "exit" : return;
-                            default:
-                                System.out.println("잘 못 입력하셨습니다. 나가실려면 exit, 시작은 start");
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -297,7 +263,7 @@ public class OnlineChessMenu {
         System.out.println("방이름 : "+ nameRoom);
 
         String start = sc.nextLine();
-        multiChessBoard = new MultiChessBoard(out, in, sc, turn, enemyId,jsonLogin);
+        multiChessBoard = new MultiChessBoard(out, in, sc, turn, enemyId, jsonLogin);
         multiChessBoard.display();
     }
 
@@ -384,7 +350,8 @@ public class OnlineChessMenu {
                                 : "오프라인") + " >" +
                         ", 이긴 팀 : " + (((String) ((JSONObject) (jsonArray.get(i))).get("victory")).equals("W")
                         ? "백팀"
-                        : "흑팀"));
+                        : "흑팀")
+                );
             }
         }
     }
@@ -425,10 +392,11 @@ public class OnlineChessMenu {
                 ((Double)(jsonMap.get("blackRatio"))).floatValue(),
                 (String)(jsonMap.get("ratio"))
         );
+
     }
 
     public void displayMyScoreSuccess(int total, Integer white, Integer black, Float whiteRatio, Float blackRatio, String ratio) {
-        System.out.println("========= " + ((jsonLogin!=null&&jsonLogin.get("name")!=null) ? jsonLogin.get("name") : "플레이어") +"님의 플레이 목록 =========");
+        System.out.println("========= " + ((jsonLogin != null && jsonLogin.get("name") != null) ? jsonLogin.get("name") : "플레이어") + "님의 플레이 목록 =========");
         System.out.println("진행한 게임 횟수 : " + total);
         System.out.println("흰색이 이긴 횟수 : " + white);
         System.out.println("블랙이 이긴 횟수 : " + black);
@@ -445,15 +413,6 @@ public class OnlineChessMenu {
         if (out != null) {
             out.println(json.toJSONString());
             json.clear();
-
-        } else {
-            System.out.println("서버와 연결이 되어있지 않습니다.");
-        }
-    }
-
-    private void out(String content) {
-        if (out != null) {
-            out.println(content);
         } else {
             System.out.println("서버와 연결이 되어있지 않습니다.");
         }
@@ -469,6 +428,7 @@ public class OnlineChessMenu {
             }else{
                 System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
             }
+
             jsonMap = responseJson;
 
             responseJson=null;
@@ -482,32 +442,24 @@ public class OnlineChessMenu {
         try {
             serverMessage = in.readLine();
             responseJson = (JSONObject) parser.parse(serverMessage);
+
             if(responseJson.get("status").equals("success")) {
                 System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
             }else{
                 System.out.println("\n서비스 요청 결과 : "+responseJson.get("message"));
             }
+
             jsonArray = (JSONArray) responseJson.get("data");
 
             responseJson=null;
         } catch (IOException | ParseException e) {
             throw new RuntimeException(e);
         }
-
-    }
-
-    private String resultRead() {
-        String serverMessage= null;
-        try {
-            serverMessage = in.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return serverMessage;
     }
 
     private String resultAllRead() {
-        String serverMessage= null;
+        String serverMessage = null;
+
         try {
             while (true) {
 
@@ -518,8 +470,8 @@ public class OnlineChessMenu {
                 } else if (serverMessage.startsWith("FIND")) {
                     serverMessage = serverMessage.substring(4);
                 } else if (serverMessage.startsWith("ENEMY↯")) {
-                    String turn = serverMessage.split("↯",3)[1];
-                    enemyId = serverMessage.split("↯",3)[2];
+                    String turn = serverMessage.split("↯", 3)[1];
+                    enemyId = serverMessage.split("↯", 3)[2];
                     this.turn = Integer.parseInt(turn);
                 } else {
                     System.out.println(serverMessage);

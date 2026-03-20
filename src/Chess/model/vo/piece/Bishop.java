@@ -31,4 +31,9 @@ public class Bishop extends Piece {
             return true;
         }else return false;
     }
+
+    @Override
+    public String getKey() {
+        return "B";
+    }
 }
