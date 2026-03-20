@@ -47,13 +47,30 @@
 
 서버가 실행된 상태에서 클라이언트를 실행하면 사용자 인터페이스가 시작됩니다::
 
+### 서버 실행
+
+서버를 먼저 실행해야 클라이언트가 데이터베이스 및 게임 로직과 연결됩니다:
+
 ```bash
-# Example command, actual command may vary based on project structure
-java -cp target/classes src/Chess/config/connection/ChessClient.java
+# Java 17 기준, 클래스 경로를 지정하고 Run 클래스의 main 실행
+java -cp path/to/classes Chess.run.Run
 ```
+path/to/classes는 컴파일된 .class 파일이 있는 디렉터리로 바꿔주세요.
 
-*(Note: 애플리케이션을 실행하는 정확한 명령어는 프로젝트가 어떻게 빌드되고 패키징되었는지에 따라 달라집니다. Maven이나 Gradle 같은 빌드 도구를 사용하는 경우, 실행 명령어가 다를 수 있습니다.)*
+### 클라이언트 실행
 
+서버가 실행된 상태에서 클라이언트를 실행하면 사용자 인터페이스가 시작됩니다:
+
+```bash
+# Java 17 기준, 클래스 경로를 지정하고 ChessClient 클래스의 main 실행
+java -cp path/to/classes Chess.config.connection.ChessClient
+```
+path/to/classes는 컴파일된 .class 파일이 있는 디렉터리로 바꿔주세요.
+
+
+이렇게 하면 사용자 입장에서 **무엇을 먼저 실행해야 하는지**, **어떤 클래스의 main을 실행해야 하는지** 명확히 알 수 있습니다.
+
+원하면 제가 README 전체 사용법 섹션을 이 기준으로 다시 작성해서 보여드릴 수도
 ### 예시: 플레이어 등록
 
 ```java
