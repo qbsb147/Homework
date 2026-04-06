@@ -62,6 +62,7 @@ public class ChessController {
     }
 
     public void comfirmRecord(String position){
+        chessService.start();
         chessService.updateBoard(position);
     }
 

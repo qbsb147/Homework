@@ -19,12 +19,12 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/dev_tool/json-simple-1.1.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../dev_tool/json-simple-1.1.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="ojdbc17" level="project" />
+    <orderEntry type="library" name="oracle.database.jdbc.ojdbc11" level="project" />
   </component>
 </module>

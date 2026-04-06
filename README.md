@@ -35,6 +35,17 @@
 4.  **데이터베이스 설정:**
     JDBC를 통해 Oracle 데이터베이스와 연결됩니다. 데이터베이스 접속 정보는 driver.properties 및 관련 설정 파일에서 확인하고 수정할 수 있습니다. SQL 쿼리는 resources/query.xml에서 관리됩니다.
 
+## 🖼️ 실행 화면
+
+### 기물 이동
+<img src="./screen/move.gif">
+
+### 게임 승리
+<img src="./screen/win.gif">
+
+### 기록 확인
+<img src="./screen/record.gif">
+
 ## 💡 사용법
 
 애플리케이션은 서버를 먼저 실행하고, 그 다음 클라이언트를 실행하는 구조입니다.

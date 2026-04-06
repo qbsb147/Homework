@@ -33,7 +33,7 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public String getKey() {
-        return "B";
+    public Character getKey() {
+        return 'B';
     }
 }
